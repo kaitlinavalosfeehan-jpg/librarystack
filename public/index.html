@@ -105,7 +105,22 @@ const db = {
   async deleteLibrary(id)   { return supabase.from("libraries").delete().eq("id",id); },
 
   async getCollections()                  { const {data,error}=await supabase.from("collections").select("*"); return {data,error}; },
-  async upsertCollection(c)               { return supabase.from("collections").upsert({library_id:c.libraryId,isbn:c.isbn,qty:c.qty,condition:c.condition||"Good",last_inventory:c.lastInventory||null},{onConflict:"library_id,isbn"}); },
+  
+  // Locate this inside your 'const db = { ... }' block
+async upsertCollection(c) {
+  return supabase
+    .from("collections")
+    .upsert(
+      {
+        library_id: c.libraryId,
+        isbn: c.isbn,
+        qty: c.qty,
+        condition: c.condition || "Good",
+        last_inventory: c.lastInventory || null
+      }, 
+      { onConflict: 'library_id,isbn' } // Remove the space if the DB constraint name is strict
+    );
+},
   async deleteCollection(libraryId,isbn)  { return supabase.from("collections").delete().eq("library_id",libraryId).eq("isbn",isbn); },
 
   async getDeliveries()    { const {data,error}=await supabase.from("deliveries").select("*").order("date",{ascending:false}); return {data,error}; },
