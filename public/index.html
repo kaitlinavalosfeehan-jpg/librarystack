@@ -1,0 +1,141 @@
+// ─────────────────────────────────────────────────────────
+// LibraryStack seed — paste this into your browser console
+// while your app is open at its Vercel URL
+// ─────────────────────────────────────────────────────────
+(async () => {
+
+const SUPA_URL = "https://nkfmjtuyjzgegkwojkdb.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZm1qdHV5anpnZWdrd29qa2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3OTM0MTUsImV4cCI6MjA5MjM2OTQxNX0.QEUGDQ5AhTeQyaMtfVFrSZe76KN6LuO-swnQ4DnTpyc";
+
+async function q(table, method, body) {
+  const url = `${SUPA_URL}/rest/v1/${table}`;
+  const headers = {
+    "apikey": SUPA_KEY,
+    "Authorization": `Bearer ${SUPA_KEY}`,
+    "Content-Type": "application/json",
+    "Prefer": method === "DELETE" ? "return=minimal" : "return=minimal,resolution=merge-duplicates"
+  };
+  const res = await fetch(method === "DELETE" ? url + "?isbn=neq.___" : url, {
+    method, headers, body: body ? JSON.stringify(body) : undefined
+  });
+  return res;
+}
+
+async function del(table, col) {
+  const url = `${SUPA_URL}/rest/v1/${table}?${col}=neq.___NEVER___`;
+  await fetch(url, { method:"DELETE", headers:{ "apikey":SUPA_KEY,"Authorization":`Bearer ${SUPA_KEY}`,"Content-Type":"application/json" }});
+}
+
+async function ins(table, data) {
+  const url = `${SUPA_URL}/rest/v1/${table}`;
+  const res = await fetch(url, {
+    method:"POST",
+    headers:{ "apikey":SUPA_KEY,"Authorization":`Bearer ${SUPA_KEY}`,"Content-Type":"application/json","Prefer":"return=minimal" },
+    body: JSON.stringify(data)
+  });
+  if(!res.ok){ const t=await res.text(); console.error(`❌ ${table}:`,t); return false; }
+  return true;
+}
+
+function ago(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split("T")[0]; }
+
+console.log("🌱 Clearing existing data...");
+await del("queue","isbn");
+await del("audits","id");
+await del("deliveries","id");
+await del("collections","isbn");
+await del("libraries","id");
+await del("books","isbn");
+
+await new Promise(r=>setTimeout(r,800));
+
+console.log("📚 Inserting 12 NYT bestseller titles...");
+await ins("books", [
+  {isbn:"9781250321428",title:"Onyx Storm",             author:"Rebecca Yarros",    genre:"Fantasy",          age_range:"Adult",pages:737, format:"HC",msrp:32.00},
+  {isbn:"9780385549349",title:"The Women",              author:"Kristin Hannah",    genre:"Historical Fiction",age_range:"Adult",pages:480, format:"HC",msrp:30.00},
+  {isbn:"9780385545990",title:"The Widow",              author:"John Grisham",      genre:"Thriller",         age_range:"Adult",pages:352, format:"HC",msrp:29.00},
+  {isbn:"9780593230572",title:"Happy Place",            author:"Emily Henry",       genre:"Romance",          age_range:"Adult",pages:400, format:"PB",msrp:18.00},
+  {isbn:"9780385549485",title:"James",                  author:"Percival Everett",  genre:"Literary Fiction", age_range:"Adult",pages:320, format:"PB",msrp:17.00},
+  {isbn:"9781250301697",title:"Fourth Wing",            author:"Rebecca Yarros",    genre:"Fantasy",          age_range:"Adult",pages:517, format:"HC",msrp:29.00},
+  {isbn:"9780593799538",title:"Wind and Truth",         author:"Brandon Sanderson", genre:"Fantasy",          age_range:"Adult",pages:1322,format:"HC",msrp:37.00},
+  {isbn:"9780593315224",title:"Intermezzo",             author:"Sally Rooney",      genre:"Literary Fiction", age_range:"Adult",pages:464, format:"HC",msrp:29.00},
+  {isbn:"9780593449592",title:"The God of the Woods",   author:"Liz Moore",         genre:"Mystery",          age_range:"Adult",pages:480, format:"HC",msrp:30.00},
+  {isbn:"9781250893499",title:"The Life Impossible",    author:"Matt Haig",         genre:"Fiction",          age_range:"Adult",pages:304, format:"HC",msrp:28.00},
+  {isbn:"9780385550369",title:"All Fours",              author:"Miranda July",      genre:"Literary Fiction", age_range:"Adult",pages:352, format:"HC",msrp:29.00},
+  {isbn:"9780593802649",title:"The Anxious Generation", author:"Jonathan Haidt",    genre:"Nonfiction",       age_range:"Adult",pages:385, format:"HC",msrp:32.00},
+]);
+
+console.log("🏢 Inserting 2 libraries...");
+await ins("libraries", [
+  {id:"lib001",name:"Silverwing Aviation — FBO Lounge",location:"San Jose, CA (SJC)",    contact:"ops@silverwingaviation.com"},
+  {id:"lib002",name:"The Carmel Highlands Inn",         location:"Carmel-by-the-Sea, CA",contact:"concierge@carmelhighlandsinn.com"},
+]);
+
+console.log("📖 Inserting current collections...");
+await ins("collections", [
+  // Silverwing Aviation — business travelers, fast turnover
+  {library_id:"lib001",isbn:"9781250321428",qty:2,condition:"Fair", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9780385549349",qty:1,condition:"Good", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9780385545990",qty:3,condition:"Good", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9780593230572",qty:2,condition:"Good", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9780385549485",qty:1,condition:"Poor", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9781250301697",qty:2,condition:"Fair", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9780593799538",qty:1,condition:"Good", last_inventory:ago(14)},
+  {library_id:"lib001",isbn:"9781250893499",qty:2,condition:"Good", last_inventory:ago(14)},
+  // Carmel Highlands Inn — leisure guests, literary/romance popular
+  {library_id:"lib002",isbn:"9780385549349",qty:2,condition:"Good", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9780593315224",qty:3,condition:"Good", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9780593449592",qty:1,condition:"Fair", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9781250893499",qty:2,condition:"Good", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9780385550369",qty:1,condition:"Good", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9780593802649",qty:2,condition:"Good", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9780593230572",qty:1,condition:"Poor", last_inventory:ago(7)},
+  {library_id:"lib002",isbn:"9781250321428",qty:2,condition:"Good", last_inventory:ago(7)},
+]);
+
+console.log("🚚 Inserting 6 deliveries across 3 months...");
+await ins("deliveries", [
+  {id:"del001",library_id:"lib001",date:ago(91),notes:"Initial stock — opening inventory",
+    items:[{isbn:"9781250321428",qty:5},{isbn:"9780385549349",qty:4},{isbn:"9780385545990",qty:5},{isbn:"9780593230572",qty:4},{isbn:"9780385549485",qty:3},{isbn:"9781250301697",qty:4}]},
+  {id:"del002",library_id:"lib002",date:ago(88),notes:"Initial stock — opening inventory",
+    items:[{isbn:"9780385549349",qty:4},{isbn:"9780593315224",qty:5},{isbn:"9780593449592",qty:4},{isbn:"9781250893499",qty:3},{isbn:"9780593230572",qty:4},{isbn:"9781250321428",qty:3}]},
+  {id:"del003",library_id:"lib001",date:ago(58),notes:"Month 2 restock — replaced taken titles",
+    items:[{isbn:"9781250321428",qty:3},{isbn:"9780385549349",qty:2},{isbn:"9780593799538",qty:2},{isbn:"9781250893499",qty:3}]},
+  {id:"del004",library_id:"lib002",date:ago(55),notes:"Month 2 restock + new titles added",
+    items:[{isbn:"9780385549349",qty:2},{isbn:"9780593449592",qty:2},{isbn:"9780385550369",qty:3},{isbn:"9780593802649",qty:3}]},
+  {id:"del005",library_id:"lib001",date:ago(21),notes:"Monthly refresh — added Grisham copies",
+    items:[{isbn:"9780385545990",qty:2},{isbn:"9781250301697",qty:2},{isbn:"9780385549485",qty:2}]},
+  {id:"del006",library_id:"lib002",date:ago(14),notes:"Spring refresh",
+    items:[{isbn:"9780593315224",qty:2},{isbn:"9781250321428",qty:2},{isbn:"9780593802649",qty:1}]},
+]);
+
+console.log("🔍 Inserting 4 audits (2 per library)...");
+await ins("audits", [
+  // Silverwing — Audit 1 (month 2)
+  {id:"aud001",library_id:"lib001",date:ago(62),
+    scanned:{"9781250321428":3,"9780385549349":2,"9780385545990":4,"9780593230572":3,"9780385549485":2,"9781250301697":3},
+    expected:{"9781250321428":5,"9780385549349":4,"9780385545990":5,"9780593230572":4,"9780385549485":3,"9781250301697":4},
+    delta:[{isbn:"9781250321428",missing:2},{isbn:"9780385549349",missing:2},{isbn:"9780593230572",missing:1},{isbn:"9780385549485",missing:1},{isbn:"9781250301697",missing:1}]},
+  // Silverwing — Audit 2 (most recent)
+  {id:"aud002",library_id:"lib001",date:ago(14),
+    scanned:{"9781250321428":2,"9780385549349":1,"9780385545990":3,"9780593230572":2,"9780385549485":1,"9781250301697":2,"9780593799538":1,"9781250893499":2},
+    expected:{"9781250321428":4,"9780385549349":3,"9780385545990":5,"9780593230572":3,"9780385549485":3,"9781250301697":4,"9780593799538":2,"9781250893499":3},
+    delta:[{isbn:"9781250321428",missing:2},{isbn:"9780385549349",missing:2},{isbn:"9780385545990",missing:2},{isbn:"9780593230572",missing:1},{isbn:"9780385549485",missing:2},{isbn:"9781250301697",missing:2},{isbn:"9780593799538",missing:1},{isbn:"9781250893499",missing:1}]},
+  // Carmel — Audit 1 (month 2)
+  {id:"aud003",library_id:"lib002",date:ago(57),
+    scanned:{"9780385549349":3,"9780593315224":3,"9780593449592":2,"9781250893499":2,"9780593230572":3,"9781250321428":2},
+    expected:{"9780385549349":4,"9780593315224":5,"9780593449592":4,"9781250893499":3,"9780593230572":4,"9781250321428":3},
+    delta:[{isbn:"9780385549349",missing:1},{isbn:"9780593315224",missing:2},{isbn:"9780593449592",missing:2},{isbn:"9781250893499",missing:1},{isbn:"9780593230572",missing:1},{isbn:"9781250321428",missing:1}]},
+  // Carmel — Audit 2 (most recent)
+  {id:"aud004",library_id:"lib002",date:ago(7),
+    scanned:{"9780385549349":2,"9780593315224":3,"9780593449592":1,"9781250893499":2,"9780385550369":1,"9780593802649":2,"9780593230572":1,"9781250321428":2},
+    expected:{"9780385549349":4,"9780593315224":5,"9780593449592":4,"9781250893499":3,"9780385550369":3,"9780593802649":4,"9780593230572":3,"9781250321428":5},
+    delta:[{isbn:"9780385549349",missing:2},{isbn:"9780593315224",missing:2},{isbn:"9780593449592",missing:3},{isbn:"9781250893499",missing:1},{isbn:"9780385550369",missing:2},{isbn:"9780593802649",missing:2},{isbn:"9780593230572",missing:2},{isbn:"9781250321428",missing:3}]},
+]);
+
+console.log("\n✅ Seed complete! Refresh your app tab to see the data.");
+console.log("   📍 Silverwing Aviation — FBO Lounge (SJC)");
+console.log("   📍 The Carmel Highlands Inn");
+console.log("   📚 12 NYT bestsellers | 6 deliveries | 4 audits | 3 months of data");
+
+})();
