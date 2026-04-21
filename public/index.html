@@ -1,141 +1,1251 @@
-// ─────────────────────────────────────────────────────────
-// LibraryStack seed — paste this into your browser console
-// while your app is open at its Vercel URL
-// ─────────────────────────────────────────────────────────
-(async () => {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LibraryStack</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh}
+input,select,textarea{font-family:inherit;font-size:14px;color:#1a1a18;background:#fff;border:0.5px solid rgba(0,0,0,0.3);border-radius:8px;padding:8px 12px;outline:none;width:100%}
+input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,0.12)}
+button{font-family:inherit;cursor:pointer;border:0.5px solid rgba(0,0,0,0.3);border-radius:8px;padding:8px 14px;font-size:13px;background:#fff;color:#1a1a18;transition:all 0.15s}
+button:hover{background:#f0ede8}
+button:active{transform:scale(0.98)}
+button:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-primary{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C;border-color:#0C447C}
+.btn-danger{background:#A32D2D;color:#FCEBEB;border-color:#A32D2D}
+.btn-danger:hover{background:#791F1F}
+.btn-success{background:#3B6D11;color:#EAF3DE;border-color:#3B6D11}
+.btn-success:hover{background:#27500A}
+.btn-amber{background:#854F0B;color:#FAEEDA;border-color:#854F0B}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:#B5D4F4;color:#0C447C}
+.badge-green{background:#C0DD97;color:#27500A}
+.badge-red{background:#F7C1C1;color:#791F1F}
+.badge-amber{background:#FAC775;color:#633806}
+.badge-gray{background:#D3D1C7;color:#444441}
+.card{background:#fff;border:0.5px solid rgba(0,0,0,0.15);border-radius:12px;padding:1rem 1.25rem}
+.nav{background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.15);display:flex;align-items:center;padding:0 0.75rem;position:sticky;top:0;z-index:100;overflow-x:auto;gap:0}
+.nav-brand{font-weight:500;font-size:15px;padding:0 12px 0 4px;color:#185FA5;white-space:nowrap;flex-shrink:0}
+.nav-tab{padding:12px 11px;font-size:12px;font-weight:500;color:#666;border:none;background:none;border-bottom:2px solid transparent;border-radius:0;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.nav-tab.active{color:#185FA5;border-bottom-color:#185FA5}
+.nav-tab:hover:not(.active){color:#1a1a18;background:none}
+.section-title{font-size:18px;font-weight:500;margin-bottom:1rem}
+.table-wrap{overflow-x:auto;border-radius:12px;border:0.5px solid rgba(0,0,0,0.15)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:12px;overflow:hidden}
+th{padding:10px 14px;text-align:left;font-weight:500;font-size:11px;color:#666;background:#f0ede8;border-bottom:0.5px solid rgba(0,0,0,0.1);text-transform:uppercase;letter-spacing:0.4px}
+td{padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,0.08);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9f8f5}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:1.25rem}
+.form-group{margin-bottom:1rem}
+.form-label{font-size:11px;font-weight:500;color:#666;margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:0.4px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat-card{background:#f0ede8;border-radius:10px;padding:1rem;text-align:center}
+.stat-num{font-size:26px;font-weight:500;line-height:1.1}
+.stat-label{font-size:11px;color:#666;margin-top:3px;text-transform:uppercase;letter-spacing:0.4px}
+.empty-state{text-align:center;padding:3rem 1rem;color:#666}
+.scan-mode-bar{display:flex;background:#f0ede8;border-radius:10px;padding:3px;gap:3px;margin-bottom:1rem}
+.scan-mode-btn{flex:1;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:500;background:transparent;color:#666;cursor:pointer;transition:all 0.15s}
+.scan-mode-btn.active{background:#fff;color:#185FA5;border:0.5px solid rgba(0,0,0,0.15)}
+.camera-wrap{position:relative;width:100%;max-width:400px;margin:0 auto;border-radius:12px;overflow:hidden;background:#000}
+.camera-wrap video{width:100%;display:block;border-radius:12px}
+.scan-line{position:absolute;left:10%;right:10%;height:2px;background:#185FA5;border-radius:2px;animation:scanline 2s ease-in-out infinite}
+@keyframes scanline{0%{top:20%}50%{top:75%}100%{top:20%}}
+.corner-tl,.corner-tr,.corner-bl,.corner-br{position:absolute;width:20px;height:20px;border-color:#185FA5;border-style:solid}
+.corner-tl{top:10%;left:10%;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.corner-tr{top:10%;right:10%;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.corner-bl{bottom:10%;left:10%;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+.corner-br{bottom:10%;right:10%;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+.scan-box{border:2px dashed rgba(0,0,0,0.25);border-radius:12px;padding:1.5rem;text-align:center;background:#f5f4f0;cursor:pointer}
+.scan-box.active-scan{border-color:#185FA5;background:#E6F1FB}
+.scan-toast{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;text-align:center;margin-bottom:12px}
+.scan-toast.ok{background:#C0DD97;color:#27500A}
+.scan-toast.warn{background:#FAC775;color:#633806}
+.cond-good{color:#27500A;background:#C0DD97;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.cond-fair{color:#633806;background:#FAC775;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.cond-poor{color:#791F1F;background:#F7C1C1;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.mini-bar{height:6px;border-radius:3px;background:rgba(0,0,0,0.1)}
+.mini-bar-fill{height:6px;border-radius:3px;background:#185FA5;transition:width 0.4s}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(24,95,165,0.2);border-top-color:#185FA5;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-bar{background:#E6F1FB;color:#0C447C;font-size:12px;padding:6px 16px;text-align:center;border-bottom:0.5px solid #B5D4F4}
+.error-bar{background:#F7C1C1;color:#791F1F;font-size:12px;padding:6px 16px;text-align:center}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}.modal{padding:1rem}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback,createContext,useContext}=React;
 
+// ── Supabase client ──
 const SUPA_URL = "https://nkfmjtuyjzgegkwojkdb.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rZm1qdHV5anpnZWdrd29qa2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3OTM0MTUsImV4cCI6MjA5MjM2OTQxNX0.QEUGDQ5AhTeQyaMtfVFrSZe76KN6LuO-swnQ4DnTpyc";
+const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
 
-async function q(table, method, body) {
-  const url = `${SUPA_URL}/rest/v1/${table}`;
-  const headers = {
-    "apikey": SUPA_KEY,
-    "Authorization": `Bearer ${SUPA_KEY}`,
-    "Content-Type": "application/json",
-    "Prefer": method === "DELETE" ? "return=minimal" : "return=minimal,resolution=merge-duplicates"
-  };
-  const res = await fetch(method === "DELETE" ? url + "?isbn=neq.___" : url, {
-    method, headers, body: body ? JSON.stringify(body) : undefined
-  });
-  return res;
+const TODAY = new Date().toISOString().split("T")[0];
+
+// ── DB helpers ──
+const db = {
+  async getBooks()       { const {data,error}=await supabase.from("books").select("*").order("title"); return {data,error}; },
+  async upsertBook(b)    { return supabase.from("books").upsert({isbn:b.isbn,title:b.title,author:b.author,genre:b.genre,age_range:b.ageRange,pages:b.pages,format:b.format,msrp:b.msrp}); },
+  async deleteBook(isbn) { return supabase.from("books").delete().eq("isbn",isbn); },
+
+  async getLibraries()      { const {data,error}=await supabase.from("libraries").select("*").order("name"); return {data,error}; },
+  async upsertLibrary(l)    { return supabase.from("libraries").upsert({id:l.id,name:l.name,location:l.location,contact:l.contact}); },
+  async deleteLibrary(id)   { return supabase.from("libraries").delete().eq("id",id); },
+
+  async getCollections()                  { const {data,error}=await supabase.from("collections").select("*"); return {data,error}; },
+  async upsertCollection(c)               { return supabase.from("collections").upsert({library_id:c.libraryId,isbn:c.isbn,qty:c.qty,condition:c.condition||"Good",last_inventory:c.lastInventory||null},{onConflict:"library_id,isbn"}); },
+  async deleteCollection(libraryId,isbn)  { return supabase.from("collections").delete().eq("library_id",libraryId).eq("isbn",isbn); },
+
+  async getDeliveries()    { const {data,error}=await supabase.from("deliveries").select("*").order("date",{ascending:false}); return {data,error}; },
+  async insertDelivery(d)  { return supabase.from("deliveries").insert({id:d.id,library_id:d.libraryId,date:d.date,notes:d.notes,items:d.items}); },
+  async deleteDelivery(id) { return supabase.from("deliveries").delete().eq("id",id); },
+
+  async getAudits()    { const {data,error}=await supabase.from("audits").select("*").order("date",{ascending:false}); return {data,error}; },
+  async insertAudit(a) { return supabase.from("audits").insert({id:a.id,library_id:a.libraryId,date:a.date,scanned:a.scanned,expected:a.expected,delta:a.delta}); },
+
+  async getQueue()         { const {data,error}=await supabase.from("queue").select("*"); return {data,error}; },
+  async upsertQueue(item)  { return supabase.from("queue").upsert({isbn:item.isbn,queue_date:item.queueDate,notes:item.notes||""}); },
+  async deleteQueue(isbn)  { return supabase.from("queue").delete().eq("isbn",isbn); },
+};
+
+// Convert snake_case DB rows to camelCase app objects
+function rowToBook(r)       { return {isbn:r.isbn,title:r.title,author:r.author||"",genre:r.genre||"",ageRange:r.age_range||"Adult",pages:r.pages||0,format:r.format||"PB",msrp:parseFloat(r.msrp)||0}; }
+function rowToLib(r)        { return {id:r.id,name:r.name,location:r.location||"",contact:r.contact||""}; }
+function rowToCol(r)        { return {libraryId:r.library_id,isbn:r.isbn,qty:r.qty||0,condition:r.condition||"Good",lastInventory:r.last_inventory||null}; }
+function rowToDelivery(r)   { return {id:r.id,libraryId:r.library_id,date:r.date,notes:r.notes||"",items:r.items||[]}; }
+function rowToAudit(r)      { return {id:r.id,libraryId:r.library_id,date:r.date,scanned:r.scanned||{},expected:r.expected||{},delta:r.delta||[]}; }
+function rowToQueue(r)      { return {isbn:r.isbn,queueDate:r.queue_date,notes:r.notes||""}; }
+
+// ── CSV Export ──
+function exportCSV(rows,filename){
+  if(!rows.length)return;
+  const hdr=Object.keys(rows[0]);
+  const csv=[hdr.join(","),...rows.map(r=>hdr.map(k=>{const v=String(r[k]??"").replace(/"/g,'""');return v.includes(",")||v.includes('"')?`"${v}"`:v;}).join(","))].join("\n");
+  const a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);a.download=filename;a.click();
 }
 
-async function del(table, col) {
-  const url = `${SUPA_URL}/rest/v1/${table}?${col}=neq.___NEVER___`;
-  await fetch(url, { method:"DELETE", headers:{ "apikey":SUPA_KEY,"Authorization":`Bearer ${SUPA_KEY}`,"Content-Type":"application/json" }});
+// ── Camera Scanner ──
+function CameraScanner({onScan}){
+  const videoRef=useRef(null);const streamRef=useRef(null);const animRef=useRef(null);const lastRef=useRef(null);
+  const [status,setStatus]=useState("starting");const [err,setErr]=useState(null);const [torch,setTorch]=useState(false);const trackRef=useRef(null);
+  useEffect(()=>{
+    let det=null;
+    async function go(){
+      if(!("BarcodeDetector" in window)){setErr("Camera scanning requires Chrome 83+ on Android or Safari 17+ on iPhone. Use Physical Scanner mode instead.");setStatus("error");return;}
+      try{det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});}catch(e){setErr("Barcode detector failed: "+e.message);setStatus("error");return;}
+      try{
+        const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:1280},height:{ideal:720}}});
+        streamRef.current=s;const tr=s.getVideoTracks()[0];
+        if(tr){trackRef.current=tr;try{await tr.applyConstraints({advanced:[{torch:false}]});}catch{}}
+        if(videoRef.current){videoRef.current.srcObject=s;await videoRef.current.play();}
+        setStatus("scanning");
+        function tick(){
+          if(!videoRef.current||videoRef.current.readyState<2){animRef.current=requestAnimationFrame(tick);return;}
+          det.detect(videoRef.current).then(b=>{if(b.length>0){const v=b[0].rawValue;if(v!==lastRef.current){lastRef.current=v;onScan(v);setTimeout(()=>{lastRef.current=null;},1500);}}}).catch(()=>{});
+          animRef.current=requestAnimationFrame(tick);
+        }
+        animRef.current=requestAnimationFrame(tick);
+      }catch(e){setErr("Camera access denied. Please allow camera permission in your browser settings.");setStatus("error");}
+    }
+    go();
+    return()=>{if(animRef.current)cancelAnimationFrame(animRef.current);if(streamRef.current)streamRef.current.getTracks().forEach(t=>t.stop());};
+  },[]);
+  async function toggleTorch(){if(!trackRef.current)return;try{await trackRef.current.applyConstraints({advanced:[{torch:!torch}]});setTorch(v=>!v);}catch{}}
+  return(
+    <div>
+      {status==="error"&&<div style={{background:"#FFF0F0",border:"0.5px solid #F7C1C1",borderRadius:10,padding:"0.75rem",fontSize:13,color:"#A32D2D"}}>{err}</div>}
+      {status==="starting"&&<div style={{textAlign:"center",padding:"2rem",fontSize:13,color:"#666"}}>Starting camera...</div>}
+      {status==="scanning"&&<div>
+        <div className="camera-wrap"><video ref={videoRef} playsInline muted/><div className="scan-line"/><div className="corner-tl"/><div className="corner-tr"/><div className="corner-bl"/><div className="corner-br"/></div>
+        <div style={{display:"flex",justifyContent:"center",gap:8,marginTop:8}}><button onClick={toggleTorch} style={{fontSize:12,padding:"5px 12px"}}>{torch?"Torch OFF":"Torch ON"}</button></div>
+        <p style={{textAlign:"center",fontSize:12,color:"#666",marginTop:6}}>Hold ISBN barcode steady in frame</p>
+      </div>}
+    </div>
+  );
 }
 
-async function ins(table, data) {
-  const url = `${SUPA_URL}/rest/v1/${table}`;
-  const res = await fetch(url, {
-    method:"POST",
-    headers:{ "apikey":SUPA_KEY,"Authorization":`Bearer ${SUPA_KEY}`,"Content-Type":"application/json","Prefer":"return=minimal" },
-    body: JSON.stringify(data)
-  });
-  if(!res.ok){ const t=await res.text(); console.error(`❌ ${table}:`,t); return false; }
-  return true;
+// ── Scan Input ──
+function ScanInput({onScan,autoFocus=true}){
+  const [mode,setMode]=useState("physical");const [val,setVal]=useState("");const inputRef=useRef(null);
+  useEffect(()=>{if(mode==="physical"&&autoFocus&&inputRef.current)inputRef.current.focus();},[mode]);
+  function handleKey(e){if(e.key==="Enter"&&val.trim()){onScan(val.trim());setVal("");}}
+  return(
+    <div>
+      <div className="scan-mode-bar">
+        <button className={`scan-mode-btn${mode==="physical"?" active":""}`} onClick={()=>setMode("physical")}>Physical Scanner / Keyboard</button>
+        <button className={`scan-mode-btn${mode==="camera"?" active":""}`} onClick={()=>setMode("camera")}>Camera (Mobile)</button>
+      </div>
+      {mode==="physical"&&<div className={`scan-box${val.length>0?" active-scan":""}`} onClick={()=>inputRef.current&&inputRef.current.focus()}>
+        <div style={{fontSize:12,color:"#666",marginBottom:8}}>Click here, then scan or type ISBN + Enter</div>
+        <input ref={inputRef} value={val} onChange={e=>setVal(e.target.value)} onKeyDown={handleKey} placeholder="Ready to scan..." style={{maxWidth:260,textAlign:"center",fontSize:15,letterSpacing:2,border:"none",background:"transparent",boxShadow:"none"}} autoFocus={autoFocus}/>
+      </div>}
+      {mode==="camera"&&<CameraScanner onScan={isbn=>onScan(isbn.replace(/\D/g,""))}/>}
+    </div>
+  );
 }
 
-function ago(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split("T")[0]; }
+function CondBadge({c}){
+  if(c==="Good")return<span className="cond-good">Good</span>;
+  if(c==="Fair")return<span className="cond-fair">Fair</span>;
+  if(c==="Poor")return<span className="cond-poor">Poor</span>;
+  return<span className="badge badge-gray">{c||"—"}</span>;
+}
 
-console.log("🌱 Clearing existing data...");
-await del("queue","isbn");
-await del("audits","id");
-await del("deliveries","id");
-await del("collections","isbn");
-await del("libraries","id");
-await del("books","isbn");
+// ══════════════════════════════════════════════
+// APP
+// ══════════════════════════════════════════════
+function App(){
+  const [tab,setTab]=useState("dashboard");
+  const [books,setBooks]=useState([]);
+  const [libraries,setLibraries]=useState([]);
+  const [collections,setCollections]=useState([]);
+  const [deliveries,setDeliveries]=useState([]);
+  const [audits,setAudits]=useState([]);
+  const [queue,setQueue]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [syncMsg,setSyncMsg]=useState(null);
+  const [error,setError]=useState(null);
 
-await new Promise(r=>setTimeout(r,800));
+  async function loadAll(){
+    setLoading(true);setError(null);
+    try{
+      const [bk,lb,cl,dl,au,qu]=await Promise.all([db.getBooks(),db.getLibraries(),db.getCollections(),db.getDeliveries(),db.getAudits(),db.getQueue()]);
+      if(bk.error||lb.error||cl.error||dl.error||au.error||qu.error){
+        const e=bk.error||lb.error||cl.error||dl.error||au.error||qu.error;
+        setError("Database error: "+e.message);setLoading(false);return;
+      }
+      setBooks((bk.data||[]).map(rowToBook));
+      setLibraries((lb.data||[]).map(rowToLib));
+      setCollections((cl.data||[]).map(rowToCol));
+      setDeliveries((dl.data||[]).map(rowToDelivery));
+      setAudits((au.data||[]).map(rowToAudit));
+      setQueue((qu.data||[]).map(rowToQueue));
+    }catch(e){setError("Connection error: "+e.message);}
+    setLoading(false);
+  }
 
-console.log("📚 Inserting 12 NYT bestseller titles...");
-await ins("books", [
-  {isbn:"9781250321428",title:"Onyx Storm",             author:"Rebecca Yarros",    genre:"Fantasy",          age_range:"Adult",pages:737, format:"HC",msrp:32.00},
-  {isbn:"9780385549349",title:"The Women",              author:"Kristin Hannah",    genre:"Historical Fiction",age_range:"Adult",pages:480, format:"HC",msrp:30.00},
-  {isbn:"9780385545990",title:"The Widow",              author:"John Grisham",      genre:"Thriller",         age_range:"Adult",pages:352, format:"HC",msrp:29.00},
-  {isbn:"9780593230572",title:"Happy Place",            author:"Emily Henry",       genre:"Romance",          age_range:"Adult",pages:400, format:"PB",msrp:18.00},
-  {isbn:"9780385549485",title:"James",                  author:"Percival Everett",  genre:"Literary Fiction", age_range:"Adult",pages:320, format:"PB",msrp:17.00},
-  {isbn:"9781250301697",title:"Fourth Wing",            author:"Rebecca Yarros",    genre:"Fantasy",          age_range:"Adult",pages:517, format:"HC",msrp:29.00},
-  {isbn:"9780593799538",title:"Wind and Truth",         author:"Brandon Sanderson", genre:"Fantasy",          age_range:"Adult",pages:1322,format:"HC",msrp:37.00},
-  {isbn:"9780593315224",title:"Intermezzo",             author:"Sally Rooney",      genre:"Literary Fiction", age_range:"Adult",pages:464, format:"HC",msrp:29.00},
-  {isbn:"9780593449592",title:"The God of the Woods",   author:"Liz Moore",         genre:"Mystery",          age_range:"Adult",pages:480, format:"HC",msrp:30.00},
-  {isbn:"9781250893499",title:"The Life Impossible",    author:"Matt Haig",         genre:"Fiction",          age_range:"Adult",pages:304, format:"HC",msrp:28.00},
-  {isbn:"9780385550369",title:"All Fours",              author:"Miranda July",      genre:"Literary Fiction", age_range:"Adult",pages:352, format:"HC",msrp:29.00},
-  {isbn:"9780593802649",title:"The Anxious Generation", author:"Jonathan Haidt",    genre:"Nonfiction",       age_range:"Adult",pages:385, format:"HC",msrp:32.00},
-]);
+  useEffect(()=>{loadAll();},[]);
 
-console.log("🏢 Inserting 2 libraries...");
-await ins("libraries", [
-  {id:"lib001",name:"Silverwing Aviation — FBO Lounge",location:"San Jose, CA (SJC)",    contact:"ops@silverwingaviation.com"},
-  {id:"lib002",name:"The Carmel Highlands Inn",         location:"Carmel-by-the-Sea, CA",contact:"concierge@carmelhighlandsinn.com"},
-]);
+  async function seedDemoData(){
+    if(!confirm("Populate the database with 12 NYT bestsellers, 2 libraries, and 3 months of sample history?"))return;
+    flash("Seeding demo data...");
+    const demoBooks=[
+      {isbn:"9781649374042",title:"Onyx Storm",author:"Rebecca Yarros",genre:"Fantasy",ageRange:"Adult",pages:656,format:"HC",msrp:32.00},
+      {isbn:"9780385549349",title:"The Women",author:"Kristin Hannah",genre:"Historical Fiction",ageRange:"Adult",pages:480,format:"HC",msrp:30.00},
+      {isbn:"9780385548991",title:"The Widow",author:"John Grisham",genre:"Thriller",ageRange:"Adult",pages:384,format:"HC",msrp:29.00},
+      {isbn:"9780593230572",title:"Happy Place",author:"Emily Henry",genre:"Romance",ageRange:"Adult",pages:400,format:"PB",msrp:18.00},
+      {isbn:"9781250301697",title:"Fourth Wing",author:"Rebecca Yarros",genre:"Fantasy",ageRange:"Adult",pages:517,format:"PB",msrp:18.00},
+      {isbn:"9780593799796",title:"The Life Impossible",author:"Matt Haig",genre:"Literary Fiction",ageRange:"Adult",pages:304,format:"HC",msrp:28.00},
+      {isbn:"9780593315224",title:"Intermezzo",author:"Sally Rooney",genre:"Literary Fiction",ageRange:"Adult",pages:464,format:"HC",msrp:29.00},
+      {isbn:"9780593538210",title:"All Fours",author:"Miranda July",genre:"Literary Fiction",ageRange:"Adult",pages:352,format:"HC",msrp:28.00},
+      {isbn:"9780593472953",title:"Eruption",author:"Michael Crichton",genre:"Thriller",ageRange:"Adult",pages:368,format:"HC",msrp:30.00},
+      {isbn:"9780593799209",title:"The God of the Woods",author:"Liz Moore",genre:"Mystery",ageRange:"Adult",pages:480,format:"PB",msrp:18.00},
+      {isbn:"9780593854853",title:"James",author:"Percival Everett",genre:"Literary Fiction",ageRange:"Adult",pages:320,format:"PB",msrp:17.00},
+      {isbn:"9780593536957",title:"The Anxious Generation",author:"Jonathan Haidt",genre:"Nonfiction",ageRange:"Adult",pages:385,format:"HC",msrp:30.00},
+    ];
+    const demoLibs=[
+      {id:"lib_demo1",name:"Pacific Coast Jet Center",location:"Monterey, CA",contact:"ops@pacificcoastjet.com"},
+      {id:"lib_demo2",name:"The Asilomar Hotel",location:"Pacific Grove, CA",contact:"concierge@asilomar.com"},
+    ];
+    const demoCols=[
+      {libraryId:"lib_demo1",isbn:"9781649374042",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780385549349",qty:1,condition:"Fair",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780385548991",qty:3,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780593472953",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780593799796",qty:1,condition:"Poor",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780593315224",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo1",isbn:"9780593536957",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9780593230572",qty:3,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9781250301697",qty:2,condition:"Fair",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9780593799209",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9780593854853",qty:1,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9780593538210",qty:2,condition:"Good",lastInventory:"2026-04-01"},
+      {libraryId:"lib_demo2",isbn:"9781649374042",qty:1,condition:"Good",lastInventory:"2026-04-01"},
+    ];
+    const demoDeliveries=[
+      {id:"del_demo1",libraryId:"lib_demo1",date:"2026-01-10",notes:"Initial stock",items:[{isbn:"9781649374042",qty:4},{isbn:"9780385549349",qty:3},{isbn:"9780385548991",qty:4},{isbn:"9780593472953",qty:3},{isbn:"9780593799796",qty:3},{isbn:"9780593315224",qty:3},{isbn:"9780593536957",qty:3}]},
+      {id:"del_demo2",libraryId:"lib_demo2",date:"2026-01-10",notes:"Initial stock",items:[{isbn:"9780593230572",qty:5},{isbn:"9781250301697",qty:4},{isbn:"9780593799209",qty:4},{isbn:"9780593854853",qty:3},{isbn:"9780593538210",qty:3},{isbn:"9781649374042",qty:3}]},
+      {id:"del_demo3",libraryId:"lib_demo1",date:"2026-02-14",notes:"Valentine restock",items:[{isbn:"9780385549349",qty:2},{isbn:"9780593472953",qty:2},{isbn:"9780593799796",qty:1}]},
+      {id:"del_demo4",libraryId:"lib_demo2",date:"2026-02-14",notes:"Post-audit restock",items:[{isbn:"9780593230572",qty:2},{isbn:"9781250301697",qty:2},{isbn:"9780593854853",qty:1}]},
+      {id:"del_demo5",libraryId:"lib_demo1",date:"2026-03-15",notes:"Spring refresh",items:[{isbn:"9781649374042",qty:2},{isbn:"9780385548991",qty:2}]},
+      {id:"del_demo6",libraryId:"lib_demo2",date:"2026-03-15",notes:"Spring refresh",items:[{isbn:"9780593538210",qty:2},{isbn:"9780593799209",qty:1}]},
+    ];
+    const demoAudits=[
+      {id:"aud_demo1",libraryId:"lib_demo1",date:"2026-01-31",scanned:{"9781649374042":3,"9780385549349":2,"9780385548991":4,"9780593472953":2,"9780593799796":2,"9780593315224":3,"9780593536957":3},expected:{"9781649374042":4,"9780385549349":3,"9780385548991":4,"9780593472953":3,"9780593799796":3,"9780593315224":3,"9780593536957":3},delta:[{isbn:"9781649374042",missing:1},{isbn:"9780385549349",missing:1},{isbn:"9780593472953",missing:1},{isbn:"9780593799796",missing:1}]},
+      {id:"aud_demo2",libraryId:"lib_demo2",date:"2026-01-31",scanned:{"9780593230572":3,"9781250301697":2,"9780593799209":4,"9780593854853":3,"9780593538210":3,"9781649374042":3},expected:{"9780593230572":5,"9781250301697":4,"9780593799209":4,"9780593854853":3,"9780593538210":3,"9781649374042":3},delta:[{isbn:"9780593230572",missing:2},{isbn:"9781250301697",missing:2}]},
+      {id:"aud_demo3",libraryId:"lib_demo1",date:"2026-02-28",scanned:{"9781649374042":3,"9780385549349":2,"9780385548991":3,"9780593472953":3,"9780593799796":2,"9780593315224":2,"9780593536957":2},expected:{"9781649374042":5,"9780385549349":4,"9780385548991":6,"9780593472953":4,"9780593799796":3,"9780593315224":3,"9780593536957":3},delta:[{isbn:"9781649374042",missing:2},{isbn:"9780385549349",missing:2},{isbn:"9780385548991",missing:3},{isbn:"9780593472953",missing:1},{isbn:"9780593799796",missing:1},{isbn:"9780593315224",missing:1},{isbn:"9780593536957",missing:1}]},
+      {id:"aud_demo4",libraryId:"lib_demo2",date:"2026-02-28",scanned:{"9780593230572":4,"9781250301697":3,"9780593799209":4,"9780593854853":3,"9780593538210":4,"9781649374042":3},expected:{"9780593230572":5,"9781250301697":4,"9780593799209":5,"9780593854853":4,"9780593538210":5,"9781649374042":3},delta:[{isbn:"9780593230572",missing:1},{isbn:"9781250301697",missing:1},{isbn:"9780593799209",missing:1},{isbn:"9780593854853",missing:1},{isbn:"9780593538210",missing:1}]},
+      {id:"aud_demo5",libraryId:"lib_demo1",date:"2026-04-01",scanned:{"9781649374042":2,"9780385549349":1,"9780385548991":3,"9780593472953":2,"9780593799796":1,"9780593315224":2,"9780593536957":2},expected:{"9781649374042":5,"9780385549349":3,"9780385548991":5,"9780593472953":5,"9780593799796":3,"9780593315224":3,"9780593536957":3},delta:[{isbn:"9781649374042",missing:3},{isbn:"9780385549349",missing:2},{isbn:"9780385548991",missing:2},{isbn:"9780593472953",missing:3},{isbn:"9780593799796",missing:2},{isbn:"9780593315224",missing:1},{isbn:"9780593536957",missing:1}]},
+      {id:"aud_demo6",libraryId:"lib_demo2",date:"2026-04-01",scanned:{"9780593230572":3,"9781250301697":2,"9780593799209":2,"9780593854853":1,"9780593538210":2,"9781649374042":1},expected:{"9780593230572":7,"9781250301697":6,"9780593799209":6,"9780593854853":5,"9780593538210":7,"9781649374042":3},delta:[{isbn:"9780593230572",missing:4},{isbn:"9781250301697",missing:4},{isbn:"9780593799209",missing:4},{isbn:"9780593854853",missing:4},{isbn:"9780593538210",missing:5},{isbn:"9781649374042",missing:2}]},
+    ];
+    try{
+      for(const b of demoBooks)await db.upsertBook(b);
+      for(const l of demoLibs)await db.upsertLibrary(l);
+      for(const c of demoCols)await db.upsertCollection(c);
+      for(const d of demoDeliveries)await db.insertDelivery(d).catch(()=>{});
+      for(const a of demoAudits)await db.insertAudit(a).catch(()=>{});
+      await loadAll();
+      flash("Demo data loaded — 12 NYT bestsellers, 2 libraries, 3 months of history");
+    }catch(e){flash("Seed error: "+e.message);}
+  }
 
-console.log("📖 Inserting current collections...");
-await ins("collections", [
-  // Silverwing Aviation — business travelers, fast turnover
-  {library_id:"lib001",isbn:"9781250321428",qty:2,condition:"Fair", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9780385549349",qty:1,condition:"Good", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9780385545990",qty:3,condition:"Good", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9780593230572",qty:2,condition:"Good", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9780385549485",qty:1,condition:"Poor", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9781250301697",qty:2,condition:"Fair", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9780593799538",qty:1,condition:"Good", last_inventory:ago(14)},
-  {library_id:"lib001",isbn:"9781250893499",qty:2,condition:"Good", last_inventory:ago(14)},
-  // Carmel Highlands Inn — leisure guests, literary/romance popular
-  {library_id:"lib002",isbn:"9780385549349",qty:2,condition:"Good", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9780593315224",qty:3,condition:"Good", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9780593449592",qty:1,condition:"Fair", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9781250893499",qty:2,condition:"Good", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9780385550369",qty:1,condition:"Good", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9780593802649",qty:2,condition:"Good", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9780593230572",qty:1,condition:"Poor", last_inventory:ago(7)},
-  {library_id:"lib002",isbn:"9781250321428",qty:2,condition:"Good", last_inventory:ago(7)},
-]);
+  function flash(msg){setSyncMsg(msg);setTimeout(()=>setSyncMsg(null),2000);}
 
-console.log("🚚 Inserting 6 deliveries across 3 months...");
-await ins("deliveries", [
-  {id:"del001",library_id:"lib001",date:ago(91),notes:"Initial stock — opening inventory",
-    items:[{isbn:"9781250321428",qty:5},{isbn:"9780385549349",qty:4},{isbn:"9780385545990",qty:5},{isbn:"9780593230572",qty:4},{isbn:"9780385549485",qty:3},{isbn:"9781250301697",qty:4}]},
-  {id:"del002",library_id:"lib002",date:ago(88),notes:"Initial stock — opening inventory",
-    items:[{isbn:"9780385549349",qty:4},{isbn:"9780593315224",qty:5},{isbn:"9780593449592",qty:4},{isbn:"9781250893499",qty:3},{isbn:"9780593230572",qty:4},{isbn:"9781250321428",qty:3}]},
-  {id:"del003",library_id:"lib001",date:ago(58),notes:"Month 2 restock — replaced taken titles",
-    items:[{isbn:"9781250321428",qty:3},{isbn:"9780385549349",qty:2},{isbn:"9780593799538",qty:2},{isbn:"9781250893499",qty:3}]},
-  {id:"del004",library_id:"lib002",date:ago(55),notes:"Month 2 restock + new titles added",
-    items:[{isbn:"9780385549349",qty:2},{isbn:"9780593449592",qty:2},{isbn:"9780385550369",qty:3},{isbn:"9780593802649",qty:3}]},
-  {id:"del005",library_id:"lib001",date:ago(21),notes:"Monthly refresh — added Grisham copies",
-    items:[{isbn:"9780385545990",qty:2},{isbn:"9781250301697",qty:2},{isbn:"9780385549485",qty:2}]},
-  {id:"del006",library_id:"lib002",date:ago(14),notes:"Spring refresh",
-    items:[{isbn:"9780593315224",qty:2},{isbn:"9781250321428",qty:2},{isbn:"9780593802649",qty:1}]},
-]);
+  const ctx={books,setBooks,libraries,setLibraries,collections,setCollections,deliveries,setDeliveries,audits,setAudits,queue,setQueue,flash,reload:loadAll};
 
-console.log("🔍 Inserting 4 audits (2 per library)...");
-await ins("audits", [
-  // Silverwing — Audit 1 (month 2)
-  {id:"aud001",library_id:"lib001",date:ago(62),
-    scanned:{"9781250321428":3,"9780385549349":2,"9780385545990":4,"9780593230572":3,"9780385549485":2,"9781250301697":3},
-    expected:{"9781250321428":5,"9780385549349":4,"9780385545990":5,"9780593230572":4,"9780385549485":3,"9781250301697":4},
-    delta:[{isbn:"9781250321428",missing:2},{isbn:"9780385549349",missing:2},{isbn:"9780593230572",missing:1},{isbn:"9780385549485",missing:1},{isbn:"9781250301697",missing:1}]},
-  // Silverwing — Audit 2 (most recent)
-  {id:"aud002",library_id:"lib001",date:ago(14),
-    scanned:{"9781250321428":2,"9780385549349":1,"9780385545990":3,"9780593230572":2,"9780385549485":1,"9781250301697":2,"9780593799538":1,"9781250893499":2},
-    expected:{"9781250321428":4,"9780385549349":3,"9780385545990":5,"9780593230572":3,"9780385549485":3,"9781250301697":4,"9780593799538":2,"9781250893499":3},
-    delta:[{isbn:"9781250321428",missing:2},{isbn:"9780385549349",missing:2},{isbn:"9780385545990",missing:2},{isbn:"9780593230572",missing:1},{isbn:"9780385549485",missing:2},{isbn:"9781250301697",missing:2},{isbn:"9780593799538",missing:1},{isbn:"9781250893499",missing:1}]},
-  // Carmel — Audit 1 (month 2)
-  {id:"aud003",library_id:"lib002",date:ago(57),
-    scanned:{"9780385549349":3,"9780593315224":3,"9780593449592":2,"9781250893499":2,"9780593230572":3,"9781250321428":2},
-    expected:{"9780385549349":4,"9780593315224":5,"9780593449592":4,"9781250893499":3,"9780593230572":4,"9781250321428":3},
-    delta:[{isbn:"9780385549349",missing:1},{isbn:"9780593315224",missing:2},{isbn:"9780593449592",missing:2},{isbn:"9781250893499",missing:1},{isbn:"9780593230572",missing:1},{isbn:"9781250321428",missing:1}]},
-  // Carmel — Audit 2 (most recent)
-  {id:"aud004",library_id:"lib002",date:ago(7),
-    scanned:{"9780385549349":2,"9780593315224":3,"9780593449592":1,"9781250893499":2,"9780385550369":1,"9780593802649":2,"9780593230572":1,"9781250321428":2},
-    expected:{"9780385549349":4,"9780593315224":5,"9780593449592":4,"9781250893499":3,"9780385550369":3,"9780593802649":4,"9780593230572":3,"9781250321428":5},
-    delta:[{isbn:"9780385549349",missing:2},{isbn:"9780593315224",missing:2},{isbn:"9780593449592",missing:3},{isbn:"9781250893499",missing:1},{isbn:"9780385550369",missing:2},{isbn:"9780593802649",missing:2},{isbn:"9780593230572",missing:2},{isbn:"9781250321428",missing:3}]},
-]);
+  const TABS=[
+    {id:"dashboard",label:"Dashboard"},
+    {id:"libraries",label:"Libraries"},
+    {id:"catalog",label:"Catalog"},
+    {id:"audit",label:"Audit"},
+    {id:"deliveries",label:"Deliveries"},
+    {id:"billing",label:"Billing"},
+    {id:"restock",label:"Restock"},
+    {id:"queue",label:"Queue"+(queue.length>0?` (${queue.length})`:"")}
+  ];
 
-console.log("\n✅ Seed complete! Refresh your app tab to see the data.");
-console.log("   📍 Silverwing Aviation — FBO Lounge (SJC)");
-console.log("   📍 The Carmel Highlands Inn");
-console.log("   📚 12 NYT bestsellers | 6 deliveries | 4 audits | 3 months of data");
+  return(
+    <div style={{minHeight:"100vh"}}>
+      <nav className="nav">
+        <div className="nav-brand">LibraryStack</div>
+        <div style={{marginLeft:"auto",paddingRight:8,flexShrink:0}}>
+          <button onClick={seedDemoData} style={{fontSize:11,padding:"4px 10px",color:"#854F0B",borderColor:"#FAC775",background:"#FAEEDA"}}>Load Demo Data</button>
+        </div>
+        {TABS.map(t=><button key={t.id} className={`nav-tab${tab===t.id?" active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}
+      </nav>
+      {syncMsg&&<div className="sync-bar"><span className="spinner"/>  {syncMsg}</div>}
+      {error&&<div className="error-bar">{error} — <button style={{background:"none",border:"none",color:"#791F1F",textDecoration:"underline",cursor:"pointer",padding:0,fontSize:12}} onClick={loadAll}>retry</button></div>}
+      <div style={{padding:"1.25rem 1rem",maxWidth:900,margin:"0 auto"}}>
+        {loading?<div style={{textAlign:"center",padding:"4rem",color:"#666"}}><span className="spinner"/>Loading your data...</div>:(
+          <>
+            {!loading&&libraries.length===0&&books.length===0&&tab==="dashboard"&&(
+              <div style={{textAlign:"center",padding:"3rem 1rem"}}>
+                <div style={{fontSize:32,marginBottom:"0.75rem"}}>📚</div>
+                <div style={{fontWeight:500,fontSize:16,marginBottom:"0.5rem"}}>Database connected — nothing here yet</div>
+                <div style={{fontSize:13,color:"#666",marginBottom:"1.5rem"}}>Get started by adding libraries and books, or load sample data to explore the app.</div>
+                <button className="btn-amber" onClick={seedDemoData} style={{fontSize:14,padding:"10px 24px"}}>Load Demo Data (NYT Bestsellers)</button>
+              </div>
+            )}
+            {tab==="dashboard"&&<DashboardTab {...ctx}/>}
+            {tab==="libraries"&&<LibrariesTab {...ctx}/>}
+            {tab==="catalog"&&<CatalogTab {...ctx}/>}
+            {tab==="audit"&&<AuditTab {...ctx}/>}
+            {tab==="deliveries"&&<DeliveriesTab {...ctx}/>}
+            {tab==="billing"&&<BillingTab {...ctx}/>}
+            {tab==="restock"&&<RestockTab {...ctx}/>}
+            {tab==="queue"&&<QueueTab {...ctx}/>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
-})();
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function DashboardTab({books,libraries,collections,audits,deliveries}){
+  const totalCopies=collections.reduce((s,c)=>s+c.qty,0);
+  const totalMSRP=collections.reduce((s,c)=>{const b=books.find(x=>x.isbn===c.isbn);return s+(b?b.msrp*c.qty:0);},0);
+  const poorCondition=collections.filter(c=>c.condition==="Poor");
+  const lastAudits=libraries.map(lib=>{const a=[...audits].filter(x=>x.libraryId===lib.id).sort((a,b)=>b.date.localeCompare(a.date));return{lib,last:a[0]||null};});
+  const totalMissing=lastAudits.reduce((s,{last})=>s+(last?last.delta.reduce((d,x)=>d+(x.missing||0),0):0),0);
+  const msrpLost=lastAudits.reduce((s,{last})=>s+(last?last.delta.reduce((d,x)=>{const b=books.find(bk=>bk.isbn===x.isbn);return d+(b?b.msrp*(x.missing||0):0);},0):0),0);
+  return(
+    <div>
+      <h2 className="section-title">Dashboard</h2>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:10,marginBottom:"1.5rem"}}>
+        <div className="stat-card"><div className="stat-num">{libraries.length}</div><div className="stat-label">Libraries</div></div>
+        <div className="stat-card"><div className="stat-num">{books.length}</div><div className="stat-label">Catalog Titles</div></div>
+        <div className="stat-card"><div className="stat-num">{totalCopies}</div><div className="stat-label">Copies on Site</div></div>
+        <div className="stat-card"><div className="stat-num">${Math.round(totalMSRP)}</div><div className="stat-label">MSRP on Site</div></div>
+        <div className="stat-card" style={totalMissing>0?{background:"#F7C1C1"}:{}}><div className="stat-num" style={totalMissing>0?{color:"#791F1F"}:{}}>{totalMissing}</div><div className="stat-label" style={totalMissing>0?{color:"#A32D2D"}:{}}>Missing</div></div>
+        <div className="stat-card" style={msrpLost>0?{background:"#FFF0D0"}:{}}><div className="stat-num" style={msrpLost>0?{color:"#633806"}:{}}>${msrpLost.toFixed(2)}</div><div className="stat-label" style={msrpLost>0?{color:"#854F0B"}:{}}>MSRP Taken</div></div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:16}}>
+        <div className="card">
+          <div style={{fontSize:11,fontWeight:500,color:"#666",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"0.75rem"}}>Library Status</div>
+          {libraries.length===0&&<div style={{fontSize:13,color:"#666"}}>No libraries yet.</div>}
+          {libraries.map(lib=>{
+            const cols=collections.filter(c=>c.libraryId===lib.id);const total=cols.reduce((s,c)=>s+c.qty,0);
+            const lastAudit=lastAudits.find(x=>x.lib.id===lib.id)?.last;
+            const missing=lastAudit?lastAudit.delta.reduce((s,x)=>s+(x.missing||0),0):0;
+            const pct=totalCopies>0?Math.round(total/totalCopies*100):0;
+            return(<div key={lib.id} style={{marginBottom:"0.75rem"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:3}}>
+                <span style={{fontWeight:500}}>{lib.name}</span><span style={{color:"#666"}}>{total} copies</span>
+              </div>
+              <div className="mini-bar"><div className="mini-bar-fill" style={{width:pct+"%"}}/></div>
+              <div style={{fontSize:11,color:"#666",marginTop:3,display:"flex",gap:10}}>
+                <span>{lib.location}</span>
+                {missing>0&&<span style={{color:"#A32D2D",fontWeight:500}}>{missing} missing</span>}
+                {lastAudit&&<span>Audited: {lastAudit.date}</span>}
+              </div>
+            </div>);
+          })}
+        </div>
+        <div className="card">
+          <div style={{fontSize:11,fontWeight:500,color:"#666",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"0.75rem"}}>Condition Alerts</div>
+          {poorCondition.length===0?<div style={{fontSize:13,color:"#666"}}>No poor-condition books flagged.</div>:poorCondition.slice(0,6).map(c=>{
+            const book=books.find(b=>b.isbn===c.isbn);const lib=libraries.find(l=>l.id===c.libraryId);
+            return(<div key={c.libraryId+c.isbn} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+              <div><div style={{fontSize:13,fontWeight:500}}>{book?.title||c.isbn}</div><div style={{fontSize:11,color:"#666"}}>{lib?.name}</div></div>
+              <CondBadge c="Poor"/>
+            </div>);
+          })}
+        </div>
+        <div className="card">
+          <div style={{fontSize:11,fontWeight:500,color:"#666",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"0.75rem"}}>Recent Deliveries</div>
+          {deliveries.length===0?<div style={{fontSize:13,color:"#666"}}>No deliveries logged yet.</div>:[...deliveries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,4).map(d=>{
+            const lib=libraries.find(l=>l.id===d.libraryId);const total=d.items.reduce((s,i)=>s+i.qty,0);
+            return(<div key={d.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+              <div><div style={{fontSize:13,fontWeight:500}}>{lib?.name||"Unknown"}</div><div style={{fontSize:11,color:"#666"}}>{d.date} · {total} copies</div></div>
+              <span className="badge badge-blue">{d.items.length} titles</span>
+            </div>);
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// LIBRARIES
+// ══════════════════════════════════════════════
+function LibrariesTab({libraries,setLibraries,collections,setCollections,books,flash}){
+  const [showAdd,setShowAdd]=useState(false);const [detail,setDetail]=useState(null);
+  const [form,setForm]=useState({name:"",location:"",contact:""});
+  const [assignOpen,setAssignOpen]=useState(false);const [af,setAf]=useState({isbn:"",qty:1});const [bSearch,setBSearch]=useState("");
+  const [saving,setSaving]=useState(false);
+
+  async function addLib(){
+    if(!form.name.trim())return;setSaving(true);
+    const id="lib"+Date.now();const lib={id,...form};
+    const {error}=await db.upsertLibrary(lib);
+    if(!error){setLibraries(l=>[...l,lib]);setForm({name:"",location:"",contact:""});setShowAdd(false);flash("Library added");}
+    setSaving(false);
+  }
+  async function delLib(id){
+    if(!confirm("Remove library and all its collection data?"))return;
+    await db.deleteLibrary(id);
+    setLibraries(l=>l.filter(x=>x.id!==id));setCollections(c=>c.filter(x=>x.libraryId!==id));flash("Library removed");
+  }
+  function getC(lid){return collections.filter(c=>c.libraryId===lid)}
+  function totalQ(lid){return getC(lid).reduce((s,c)=>s+c.qty,0)}
+  async function assignBook(){
+    if(!af.isbn||!detail)return;setSaving(true);
+    const ex=collections.find(c=>c.libraryId===detail.id&&c.isbn===af.isbn);
+    const col={libraryId:detail.id,isbn:af.isbn,qty:ex?ex.qty+Number(af.qty):Number(af.qty),condition:"Good",lastInventory:null};
+    const {error}=await db.upsertCollection(col);
+    if(!error){
+      if(ex)setCollections(c=>c.map(x=>x.libraryId===detail.id&&x.isbn===af.isbn?{...x,qty:col.qty}:x));
+      else setCollections(c=>[...c,col]);
+      flash("Book assigned");
+    }
+    setAf({isbn:"",qty:1});setAssignOpen(false);setSaving(false);
+  }
+  async function updQty(lid,isbn,v){
+    const n=parseInt(v);if(isNaN(n)||n<0)return;
+    const col=collections.find(c=>c.libraryId===lid&&c.isbn===isbn);
+    if(!col)return;const updated={...col,qty:n};
+    await db.upsertCollection(updated);
+    setCollections(c=>c.map(x=>x.libraryId===lid&&x.isbn===isbn?updated:x));
+  }
+  async function updCond(lid,isbn,cond){
+    const col=collections.find(c=>c.libraryId===lid&&c.isbn===isbn);
+    if(!col)return;const updated={...col,condition:cond};
+    await db.upsertCollection(updated);
+    setCollections(c=>c.map(x=>x.libraryId===lid&&x.isbn===isbn?updated:x));
+    flash("Condition updated");
+  }
+  async function remFromLib(lid,isbn){
+    await db.deleteCollection(lid,isbn);
+    setCollections(c=>c.filter(x=>!(x.libraryId===lid&&x.isbn===isbn)));flash("Book removed");
+  }
+  const fbks=books.filter(b=>(b.title+b.author+b.isbn).toLowerCase().includes(bSearch.toLowerCase()));
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+        <h2 className="section-title" style={{margin:0}}>Partner Libraries</h2>
+        <button className="btn-primary" onClick={()=>setShowAdd(true)}>+ Add Library</button>
+      </div>
+      {libraries.length===0&&<div className="empty-state"><p>No libraries yet. Add your first partner location.</p></div>}
+      <div style={{display:"grid",gap:10}}>
+        {libraries.map(lib=>{
+          const cols=getC(lib.id);const poor=cols.filter(c=>c.condition==="Poor").length;
+          return(<div key={lib.id} className="card" style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12}}>
+            <div style={{flex:1,cursor:"pointer"}} onClick={()=>setDetail(lib)}>
+              <div style={{fontWeight:500,fontSize:15}}>{lib.name}</div>
+              <div style={{fontSize:12,color:"#666",marginTop:2}}>{lib.location}{lib.contact&&<> · {lib.contact}</>}</div>
+              <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
+                <span className="badge badge-blue">{cols.length} titles</span>
+                <span className="badge badge-gray">{totalQ(lib.id)} copies</span>
+                {poor>0&&<span className="badge badge-red">{poor} poor condition</span>}
+              </div>
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={()=>setDetail(lib)}>Manage</button>
+              <button className="btn-danger" onClick={()=>delLib(lib.id)}>✕</button>
+            </div>
+          </div>);
+        })}
+      </div>
+      {showAdd&&(<div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setShowAdd(false)}}>
+        <div className="modal">
+          <div className="modal-title">Add Library</div>
+          <div className="form-group"><label className="form-label">Name *</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Meridian Jet Center"/></div>
+          <div className="form-group"><label className="form-label">Location</label><input value={form.location} onChange={e=>setForm(f=>({...f,location:e.target.value}))} placeholder="City, State"/></div>
+          <div className="form-group"><label className="form-label">Contact</label><input value={form.contact} onChange={e=>setForm(f=>({...f,contact:e.target.value}))} placeholder="email or phone"/></div>
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAdd(false)}>Cancel</button>
+            <button className="btn-primary" onClick={addLib} disabled={saving}>{saving?"Saving...":"Add"}</button>
+          </div>
+        </div>
+      </div>)}
+      {detail&&(<div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget){setDetail(null);setAssignOpen(false)}}}>
+        <div className="modal" style={{maxWidth:620}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1.25rem"}}>
+            <div><div className="modal-title" style={{margin:0}}>{detail.name}</div><div style={{fontSize:12,color:"#666"}}>{detail.location}</div></div>
+            <button onClick={()=>{setDetail(null);setAssignOpen(false)}} style={{fontSize:16}}>✕</button>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.75rem"}}>
+            <span style={{fontSize:11,fontWeight:500,color:"#666",textTransform:"uppercase",letterSpacing:"0.4px"}}>Collection</span>
+            <button className="btn-primary" style={{fontSize:12,padding:"5px 12px"}} onClick={()=>setAssignOpen(v=>!v)}>+ Assign Books</button>
+          </div>
+          {assignOpen&&(<div style={{background:"#f5f4f0",borderRadius:10,padding:"1rem",marginBottom:"1rem"}}>
+            <div className="form-group" style={{marginBottom:"0.5rem"}}>
+              <input value={bSearch} onChange={e=>setBSearch(e.target.value)} placeholder="Search title, author, ISBN..."/>
+              {bSearch&&(<div style={{background:"#fff",border:"0.5px solid rgba(0,0,0,0.3)",borderRadius:8,marginTop:4,maxHeight:160,overflowY:"auto"}}>
+                {fbks.length===0&&<div style={{padding:"10px 12px",fontSize:13,color:"#666"}}>No matches</div>}
+                {fbks.map(b=><div key={b.isbn} style={{padding:"8px 12px",cursor:"pointer",fontSize:13,borderBottom:"0.5px solid rgba(0,0,0,0.08)"}} onClick={()=>{setAf(f=>({...f,isbn:b.isbn}));setBSearch("")}}><span style={{fontWeight:500}}>{b.title}</span> <span style={{color:"#666"}}>{b.author}</span></div>)}
+              </div>)}
+              {af.isbn&&!bSearch&&<div style={{marginTop:4,fontSize:12,color:"#185FA5",fontWeight:500}}>{books.find(b=>b.isbn===af.isbn)?.title}</div>}
+            </div>
+            <div style={{display:"flex",gap:8,alignItems:"flex-end"}}>
+              <div><label className="form-label">Qty</label><input type="number" min="1" value={af.qty} onChange={e=>setAf(f=>({...f,qty:e.target.value}))} style={{width:72}}/></div>
+              <button className="btn-success" onClick={assignBook} disabled={saving}>Add</button>
+            </div>
+          </div>)}
+          {getC(detail.id).length===0&&<div style={{textAlign:"center",padding:"1.5rem",fontSize:13,color:"#666"}}>No books assigned.</div>}
+          <div className="table-wrap">
+            <table><thead><tr><th>Title</th><th>Fmt</th><th>MSRP</th><th>Qty</th><th>Condition</th><th></th></tr></thead>
+            <tbody>{getC(detail.id).map(c=>{const bk=books.find(b=>b.isbn===c.isbn);if(!bk)return null;return(
+              <tr key={c.isbn}>
+                <td><div style={{fontWeight:500,fontSize:13}}>{bk.title}</div><div style={{fontSize:11,color:"#666"}}>{bk.author}</div></td>
+                <td><span className="badge badge-gray">{bk.format}</span></td>
+                <td>${bk.msrp.toFixed(2)}</td>
+                <td><input type="number" min="0" value={c.qty} onChange={e=>updQty(detail.id,c.isbn,e.target.value)} style={{width:56,padding:"3px 6px",fontSize:12}}/></td>
+                <td><select value={c.condition||"Good"} onChange={e=>updCond(detail.id,c.isbn,e.target.value)} style={{width:90,padding:"3px 6px",fontSize:12}}><option>Good</option><option>Fair</option><option>Poor</option></select></td>
+                <td><button className="btn-danger" style={{padding:"3px 8px",fontSize:11}} onClick={()=>remFromLib(detail.id,c.isbn)}>✕</button></td>
+              </tr>
+            );})}
+            </tbody></table>
+          </div>
+          {getC(detail.id).length>0&&<div style={{marginTop:"0.75rem",fontSize:12,color:"#666",display:"flex",gap:16}}>
+            <span>Total copies: <strong>{totalQ(detail.id)}</strong></span>
+            <span>MSRP on site: <strong>${getC(detail.id).reduce((s,c)=>{const b=books.find(x=>x.isbn===c.isbn);return s+(b?b.msrp*c.qty:0);},0).toFixed(2)}</strong></span>
+          </div>}
+        </div>
+      </div>)}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// CATALOG
+// ══════════════════════════════════════════════
+function CatalogTab({books,setBooks,queue,setQueue,flash,collections,setCollections,libraries}){
+  const [showAdd,setShowAdd]=useState(false);const [search,setSearch]=useState("");
+  const [form,setForm]=useState({isbn:"",title:"",author:"",genre:"",ageRange:"Adult",pages:"",format:"PB",msrp:""});
+  const [lookupTab,setLookupTab]=useState("title"); // "title" | "isbn" | "scan"
+  // ISBN lookup state
+  const [lISBN,setLISBN]=useState("");const [looking,setLooking]=useState(false);const [lRes,setLRes]=useState(null);
+  // Title/author search state
+  const [titleQuery,setTitleQuery]=useState("");const [searching,setSearching]=useState(false);const [searchResults,setSearchResults]=useState(null);const [searchErr,setSearchErr]=useState(null);
+  const [saving,setSaving]=useState(false);
+  const searchTimer=useRef(null);
+
+  // Open Library title/author search
+  async function searchBooks(q){
+    if(!q.trim()){setSearchResults(null);setSearchErr(null);return;}
+    setSearching(true);setSearchErr(null);
+    try{
+      const url=`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&fields=key,title,author_name,isbn,number_of_pages_median,subject&limit=10`;
+      const r=await fetch(url);
+      if(!r.ok)throw new Error("Search failed");
+      const d=await r.json();
+      const results=(d.docs||[]).filter(doc=>doc.isbn&&doc.isbn.length>0).map(doc=>({
+        title:doc.title||"",
+        author:(doc.author_name||[])[0]||"",
+        isbn:(doc.isbn||[]).find(i=>i.length===13)||(doc.isbn||[])[0]||"",
+        pages:doc.number_of_pages_median||"",
+        subjects:(doc.subject||[]).slice(0,3),
+      }));
+      setSearchResults(results);
+    }catch(e){setSearchErr("Search failed — check your connection.");}
+    setSearching(false);
+  }
+
+  function handleTitleInput(e){
+    const q=e.target.value;setTitleQuery(q);
+    clearTimeout(searchTimer.current);
+    if(q.trim().length>=2)searchTimer.current=setTimeout(()=>searchBooks(q),500);
+    else{setSearchResults(null);setSearchErr(null);}
+  }
+
+  function fillFromResult(result){
+    setForm(f=>({...f,isbn:result.isbn,title:result.title,author:result.author,pages:result.pages||""}));
+    setSearchResults(null);setTitleQuery("");
+    flash("Details filled in — review and save");
+  }
+
+  async function lookupISBN(){
+    if(!lISBN.trim())return;setLooking(true);setLRes(null);
+    try{const r=await fetch(`https://openlibrary.org/isbn/${lISBN.trim()}.json`);
+      if(r.ok){const d=await r.json();let author="";
+        if(d.authors?.[0]){try{const ar=await fetch(`https://openlibrary.org${d.authors[0].key}.json`);const ad=await ar.json();author=ad.name||"";}catch{}}
+        setForm(f=>({...f,isbn:lISBN.trim(),title:d.title||"",author,pages:d.number_of_pages||""}));setLRes("found");
+      }else setLRes("notfound");
+    }catch{setLRes("notfound");}setLooking(false);
+  }
+
+  async function addBook(){
+    if(!form.isbn||!form.title)return;
+    if(books.find(b=>b.isbn===form.isbn)){alert("ISBN already in catalog.");return;}
+    setSaving(true);
+    const book={...form,pages:Number(form.pages)||0,msrp:Number(form.msrp)||0};
+    const {error}=await db.upsertBook(book);
+    if(!error){
+      setBooks(b=>[...b,book]);
+      setForm({isbn:"",title:"",author:"",genre:"",ageRange:"Adult",pages:"",format:"PB",msrp:""});
+      setLISBN("");setLRes(null);setTitleQuery("");setSearchResults(null);
+      setShowAdd(false);flash("Book added to catalog");
+    }
+    setSaving(false);
+  }
+  async function delBook(isbn){
+    if(!confirm("Remove from catalog?"))return;
+    await db.deleteBook(isbn);setBooks(b=>b.filter(x=>x.isbn!==isbn));flash("Book removed");
+  }
+  async function addToQueue(book){
+    if(queue.find(q=>q.isbn===book.isbn))return;
+    const item={isbn:book.isbn,queueDate:TODAY,notes:""};
+    await db.upsertQueue(item);setQueue(q=>[...q,item]);flash("Added to queue");
+  }
+  function handleScanToAdd(isbn){
+    setLISBN(isbn.replace(/\D/g,""));setLookupTab("isbn");setShowAdd(true);
+  }
+  function openAdd(){
+    setShowAdd(true);setLookupTab("title");setForm({isbn:"",title:"",author:"",genre:"",ageRange:"Adult",pages:"",format:"PB",msrp:""});
+    setTitleQuery("");setSearchResults(null);setLISBN("");setLRes(null);
+  }
+
+  const [expandedISBN,setExpandedISBN]=useState(null);
+  const [assignState,setAssignState]=useState({});
+  function toggleExpand(isbn){setExpandedISBN(v=>v===isbn?null:isbn);setAssignState(s=>({...s,[isbn]:{libId:"",qty:1}}));}
+  async function assignDirect(book){
+    const s=assignState[book.isbn]||{};if(!s.libId)return;const qty=Number(s.qty)||1;
+    const ex=collections.find(c=>c.libraryId===s.libId&&c.isbn===book.isbn);
+    const col={libraryId:s.libId,isbn:book.isbn,qty:ex?ex.qty+qty:qty,condition:"Good",lastInventory:null};
+    await db.upsertCollection(col);
+    if(ex)setCollections(c=>c.map(x=>x.libraryId===s.libId&&x.isbn===book.isbn?{...x,qty:col.qty}:x));
+    else setCollections(c=>[...c,col]);
+    flash(`${book.title} assigned to ${libraries.find(l=>l.id===s.libId)?.name} (x${qty})`);
+    setAssignState(st=>({...st,[book.isbn]:{libId:"",qty:1}}));setExpandedISBN(null);
+  }
+  const filtered=books.filter(b=>(b.title+b.author+b.isbn+b.genre).toLowerCase().includes(search.toLowerCase()));
+
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem",gap:10}}>
+        <h2 className="section-title" style={{margin:0}}>Master Catalog</h2>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>{setLookupTab("scan");openAdd();}}>Scan to Add</button>
+          <button className="btn-primary" onClick={openAdd}>+ Add Book</button>
+        </div>
+      </div>
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search your catalog by title, author, ISBN, genre..." style={{marginBottom:"1rem"}}/>
+      {books.length===0&&<div className="empty-state"><p>Catalog is empty. Add your first book.</p></div>}
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Title / Author</th><th>ISBN</th><th>Genre</th><th>Fmt</th><th>MSRP</th><th>At Libraries</th><th></th></tr></thead>
+          <tbody>{filtered.map(b=>{
+            const libsWithBook=collections.filter(c=>c.isbn===b.isbn);
+            const isOpen=expandedISBN===b.isbn;
+            const as=assignState[b.isbn]||{libId:"",qty:1};
+            return(
+              <React.Fragment key={b.isbn}>
+                <tr style={isOpen?{background:"#EEF5FF"}:{}}>
+                  <td><div style={{fontWeight:500}}>{b.title}</div><div style={{fontSize:11,color:"#666"}}>{b.author}</div></td>
+                  <td style={{fontFamily:"monospace",fontSize:11}}>{b.isbn}</td>
+                  <td>{b.genre&&<span className="badge badge-blue">{b.genre}</span>}</td>
+                  <td><span className="badge badge-gray">{b.format}</span></td>
+                  <td>${b.msrp.toFixed(2)}</td>
+                  <td>
+                    {libsWithBook.length===0
+                      ?<span style={{fontSize:11,color:"#bbb"}}>—</span>
+                      :<div style={{display:"flex",flexWrap:"wrap",gap:3}}>
+                        {libsWithBook.map(c=>{const lib=libraries.find(l=>l.id===c.libraryId);return lib?<span key={c.libraryId} style={{fontSize:10,background:"#E6F1FB",color:"#0C447C",padding:"2px 7px",borderRadius:20,whiteSpace:"nowrap"}}>{lib.name} ×{c.qty}</span>:null;})}
+                      </div>
+                    }
+                  </td>
+                  <td style={{whiteSpace:"nowrap"}}>
+                    <div style={{display:"flex",gap:4}}>
+                      <button onClick={()=>toggleExpand(b.isbn)} style={{padding:"3px 10px",fontSize:11,background:isOpen?"#185FA5":"",color:isOpen?"#E6F1FB":"",borderColor:isOpen?"#185FA5":""}}>{isOpen?"Cancel":"+ Assign"}</button>
+                      <button style={{padding:"3px 8px",fontSize:11}} onClick={()=>addToQueue(b)} title="Add to staging queue">Queue</button>
+                      <button className="btn-danger" style={{padding:"3px 8px",fontSize:11}} onClick={()=>delBook(b.isbn)}>✕</button>
+                    </div>
+                  </td>
+                </tr>
+                {isOpen&&(
+                  <tr style={{background:"#F0F6FF"}}>
+                    <td colSpan={7} style={{padding:"10px 14px 12px"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                        <span style={{fontSize:12,fontWeight:500,color:"#185FA5",whiteSpace:"nowrap"}}>Assign to:</span>
+                        <select value={as.libId} onChange={e=>setAssignState(s=>({...s,[b.isbn]:{...s[b.isbn],libId:e.target.value}}))} style={{flex:1,minWidth:160,maxWidth:260,fontSize:13,padding:"5px 10px"}}>
+                          <option value="">— select library —</option>
+                          {libraries.map(l=>{const existing=collections.find(c=>c.libraryId===l.id&&c.isbn===b.isbn);return<option key={l.id} value={l.id}>{l.name}{existing?` (has ${existing.qty})`:""}</option>;})}
+                        </select>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <label style={{fontSize:12,color:"#666",whiteSpace:"nowrap"}}>Qty:</label>
+                          <input type="number" min="1" value={as.qty} onChange={e=>setAssignState(s=>({...s,[b.isbn]:{...s[b.isbn],qty:e.target.value}}))} style={{width:64,fontSize:13,padding:"5px 8px"}}/>
+                        </div>
+                        <button className="btn-success" style={{padding:"5px 16px",fontSize:12,whiteSpace:"nowrap"}} disabled={!as.libId} onClick={()=>assignDirect(b)}>Assign →</button>
+                        <button style={{padding:"5px 12px",fontSize:12,whiteSpace:"nowrap"}} onClick={()=>addToQueue(b)}>+ Queue instead</button>
+                      </div>
+                      {libsWithBook.length>0&&<div style={{marginTop:7,fontSize:11,color:"#666"}}>Currently at: {libsWithBook.map(c=>{const l=libraries.find(x=>x.id===c.libraryId);return l?`${l.name} (${c.qty})`:null;}).filter(Boolean).join(" · ")}</div>}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            );
+          })}</tbody>
+        </table>
+      </div>
+      <div style={{marginTop:"0.5rem",fontSize:11,color:"#666"}}>{filtered.length} of {books.length} titles</div>
+
+      {showAdd&&(<div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setShowAdd(false)}}>
+        <div className="modal">
+          <div className="modal-title">Add Book</div>
+
+          {/* Lookup method tabs */}
+          <div style={{display:"flex",background:"#f0ede8",borderRadius:10,padding:3,gap:3,marginBottom:"1rem"}}>
+            {[["title","Search by Title / Author"],["isbn","Scan or Enter ISBN"],["scan","Camera / Scanner"]].map(([id,label])=>(
+              <button key={id} onClick={()=>setLookupTab(id)} style={{flex:1,border:"none",borderRadius:8,padding:"7px 6px",fontSize:12,fontWeight:500,background:lookupTab===id?"#fff":"transparent",color:lookupTab===id?"#185FA5":"#666",cursor:"pointer",transition:"all 0.15s",boxShadow:"none",borderColor:lookupTab===id?"rgba(0,0,0,0.15)":"transparent",borderWidth:lookupTab===id?"0.5px":"0",borderStyle:"solid"}}>{label}</button>
+            ))}
+          </div>
+
+          {/* Title / Author search */}
+          {lookupTab==="title"&&(
+            <div style={{background:"#f5f4f0",borderRadius:10,padding:"1rem",marginBottom:"1rem"}}>
+              <div className="form-label" style={{marginBottom:5}}>Search Open Library by title or author</div>
+              <input
+                value={titleQuery}
+                onChange={handleTitleInput}
+                placeholder="e.g. 'Fourth Wing' or 'Kristin Hannah'..."
+                autoFocus
+              />
+              {searching&&<div style={{fontSize:12,color:"#666",marginTop:6}}><span className="spinner"/>Searching...</div>}
+              {searchErr&&<div style={{fontSize:12,color:"#A32D2D",marginTop:6}}>{searchErr}</div>}
+              {searchResults&&searchResults.length===0&&!searching&&titleQuery.length>=2&&(
+                <div style={{fontSize:12,color:"#666",marginTop:6}}>No results found. Try a different spelling, or use ISBN lookup.</div>
+              )}
+              {searchResults&&searchResults.length>0&&(
+                <div style={{marginTop:8,maxHeight:260,overflowY:"auto",borderRadius:8,border:"0.5px solid rgba(0,0,0,0.15)",background:"#fff"}}>
+                  {searchResults.map((result,i)=>{
+                    const alreadyIn=!!books.find(b=>b.isbn===result.isbn);
+                    return(
+                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 12px",borderBottom:i<searchResults.length-1?"0.5px solid rgba(0,0,0,0.08)":"none",gap:10}}>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:500,fontSize:13,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{result.title}</div>
+                          <div style={{fontSize:11,color:"#666"}}>{result.author}{result.pages?<> · {result.pages}pp</>:""}</div>
+                          <div style={{fontSize:10,color:"#999",fontFamily:"monospace",marginTop:1}}>ISBN {result.isbn}</div>
+                        </div>
+                        <div style={{flexShrink:0}}>
+                          {alreadyIn
+                            ?<span style={{fontSize:11,color:"#27500A",background:"#C0DD97",padding:"2px 8px",borderRadius:20}}>In catalog</span>
+                            :<button className="btn-primary" style={{fontSize:11,padding:"4px 12px"}} onClick={()=>fillFromResult(result)}>Select →</button>
+                          }
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {form.isbn&&form.title&&(
+                <div style={{marginTop:8,fontSize:12,color:"#185FA5",fontWeight:500,background:"#E6F1FB",padding:"6px 10px",borderRadius:6}}>
+                  ✓ Selected: {form.title} — review fields below and save
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ISBN lookup */}
+          {lookupTab==="isbn"&&(
+            <div style={{background:"#f5f4f0",borderRadius:10,padding:"1rem",marginBottom:"1rem"}}>
+              <div className="form-label" style={{marginBottom:5}}>Enter or scan ISBN to auto-fill</div>
+              <div style={{display:"flex",gap:8}}>
+                <input value={lISBN} onChange={e=>setLISBN(e.target.value)} placeholder="e.g. 9780593312995" onKeyDown={e=>e.key==="Enter"&&lookupISBN()} autoFocus/>
+                <button onClick={lookupISBN} style={{whiteSpace:"nowrap"}}>{looking?"...":"Lookup"}</button>
+              </div>
+              {lRes==="found"&&<div style={{fontSize:12,color:"#3B6D11",marginTop:4}}>✓ Details filled in below</div>}
+              {lRes==="notfound"&&<div style={{fontSize:12,color:"#A32D2D",marginTop:4}}>Not found — fill in manually below</div>}
+            </div>
+          )}
+
+          {/* Camera / scanner */}
+          {lookupTab==="scan"&&(
+            <div style={{background:"#f5f4f0",borderRadius:10,padding:"1rem",marginBottom:"1rem"}}>
+              <div style={{fontSize:13,fontWeight:500,marginBottom:"0.75rem"}}>Scan the book's barcode to look it up</div>
+              <ScanInput onScan={isbn=>{setLISBN(isbn.replace(/\D/g,""));setLookupTab("isbn");lookupISBN();}} autoFocus={false}/>
+            </div>
+          )}
+
+          {/* Manual fields — always visible */}
+          <div style={{borderTop:"0.5px solid rgba(0,0,0,0.1)",paddingTop:"1rem"}}>
+            <div style={{fontSize:11,fontWeight:500,color:"#666",textTransform:"uppercase",letterSpacing:"0.4px",marginBottom:"0.75rem"}}>Book Details</div>
+            <div className="form-group"><label className="form-label">ISBN *</label><input value={form.isbn} onChange={e=>setForm(f=>({...f,isbn:e.target.value}))} placeholder="13-digit ISBN"/></div>
+            <div className="form-group"><label className="form-label">Title *</label><input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}/></div>
+            <div className="form-group"><label className="form-label">Author</label><input value={form.author} onChange={e=>setForm(f=>({...f,author:e.target.value}))}/></div>
+            <div className="form-row">
+              <div className="form-group"><label className="form-label">Genre</label><input value={form.genre} onChange={e=>setForm(f=>({...f,genre:e.target.value}))}/></div>
+              <div className="form-group"><label className="form-label">Age Range</label><select value={form.ageRange} onChange={e=>setForm(f=>({...f,ageRange:e.target.value}))}><option>Children</option><option>Middle Grade</option><option>Young Adult</option><option>Adult</option></select></div>
+            </div>
+            <div className="form-row">
+              <div className="form-group"><label className="form-label">Format</label><select value={form.format} onChange={e=>setForm(f=>({...f,format:e.target.value}))}><option value="HC">Hardcover</option><option value="PB">Paperback</option></select></div>
+              <div className="form-group"><label className="form-label">Pages</label><input type="number" value={form.pages} onChange={e=>setForm(f=>({...f,pages:e.target.value}))} placeholder="320"/></div>
+            </div>
+            <div className="form-group"><label className="form-label">MSRP ($)</label><input type="number" step="0.01" value={form.msrp} onChange={e=>setForm(f=>({...f,msrp:e.target.value}))} placeholder="18.00"/></div>
+          </div>
+
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:"0.5rem"}}>
+            <button onClick={()=>setShowAdd(false)}>Cancel</button>
+            <button className="btn-primary" onClick={addBook} disabled={saving||!form.isbn||!form.title}>{saving?"Saving...":"Add to Catalog"}</button>
+          </div>
+        </div>
+      </div>)}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// AUDIT
+// ══════════════════════════════════════════════
+function AuditTab({libraries,collections,setCollections,books,audits,setAudits,flash}){
+  const [step,setStep]=useState("select");const [lib,setLib]=useState(null);
+  const [scanned,setScanned]=useState({});const [lastScan,setLastScan]=useState(null);const [done,setDone]=useState(false);const [saving,setSaving]=useState(false);
+
+  function startAudit(l){setLib(l);setScanned({});setLastScan(null);setDone(false);setStep("scan");}
+  function processISBN(raw){
+    const isbn=raw.replace(/[^0-9X]/gi,"").trim();if(!isbn||isbn.length<8)return;
+    const inLib=!!collections.find(c=>c.libraryId===lib.id&&c.isbn===isbn);
+    const book=books.find(b=>b.isbn===isbn);
+    setScanned(s=>({...s,[isbn]:(s[isbn]||0)+1}));
+    setLastScan({isbn,book,inLib,time:Date.now()});
+  }
+  function getExp(){return collections.filter(c=>c.libraryId===lib?.id)}
+  function getDelta(){
+    const exp=getExp();const all=new Set([...exp.map(c=>c.isbn),...Object.keys(scanned)]);
+    return Array.from(all).map(isbn=>{
+      const e=exp.find(c=>c.isbn===isbn);const cnt=scanned[isbn]||0;const eq=e?e.qty:0;const d=eq-cnt;
+      return{isbn,book:books.find(b=>b.isbn===isbn),expected:eq,scanned:cnt,delta:d,status:eq===0?"unknown":d===0?"ok":d>0?"missing":"over"};
+    }).sort((a,b)=>{const o={missing:0,unknown:1,over:2,ok:3};return o[a.status]-o[b.status];});
+  }
+  async function finish(){
+    setSaving(true);
+    const delta=getDelta();
+    const id="aud"+Date.now();
+    const missingItems=delta.filter(d=>d.status==="missing").map(d=>({isbn:d.isbn,missing:d.delta}));
+    const audit={id,libraryId:lib.id,date:TODAY,scanned:{...scanned},expected:Object.fromEntries(getExp().map(c=>[c.isbn,c.qty])),delta:missingItems};
+    await db.insertAudit(audit);
+    setAudits(a=>[...a,audit]);
+    // update last_inventory on all collection items for this lib
+    const updated=collections.map(c=>c.libraryId===lib.id?{...c,lastInventory:TODAY}:c);
+    await Promise.all(collections.filter(c=>c.libraryId===lib.id).map(c=>db.upsertCollection({...c,lastInventory:TODAY})));
+    setCollections(updated);
+    setSaving(false);setDone(true);flash("Audit saved");
+  }
+  function reset(){setStep("select");setLib(null);setScanned({});setDone(false);}
+  function exportAudit(){exportCSV(getDelta().map(d=>({Title:d.book?.title||"Unknown",Author:d.book?.author||"",ISBN:d.isbn,Expected:d.expected,Scanned:d.scanned,Delta:d.delta*-1,Status:d.status,MSRP:d.book?.msrp||""})),`audit_${lib?.name.replace(/\s+/g,"_")}_${TODAY}.csv`);}
+
+  const delta=lib?getDelta():[];
+  const totalSc=Object.values(scanned).reduce((s,n)=>s+n,0);
+  const totalEx=getExp().reduce((s,c)=>s+c.qty,0);
+  const missing=delta.filter(d=>d.status==="missing");
+  const unknown=delta.filter(d=>d.status==="unknown");
+  const ok=delta.filter(d=>d.status==="ok");
+  const msrpLost=missing.reduce((s,d)=>s+(d.book?d.book.msrp*d.delta:0),0);
+
+  if(step==="select")return(
+    <div>
+      <h2 className="section-title">Start Inventory Audit</h2>
+      <p style={{fontSize:13,color:"#666",marginBottom:"1.25rem"}}>Select a partner location to begin scanning.</p>
+      <div style={{display:"grid",gap:10}}>
+        {libraries.map(lib=>{
+          const cols=collections.filter(c=>c.libraryId===lib.id);
+          const lastDate=cols.reduce((l,c)=>c.lastInventory&&c.lastInventory>l?c.lastInventory:l,"");
+          return(<div key={lib.id} className="card" style={{display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}} onClick={()=>startAudit(lib)}>
+            <div>
+              <div style={{fontWeight:500}}>{lib.name}</div>
+              <div style={{fontSize:12,color:"#666"}}>{lib.location}</div>
+              <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
+                <span className="badge badge-blue">{cols.length} titles</span>
+                <span className="badge badge-gray">{cols.reduce((s,c)=>s+c.qty,0)} expected</span>
+                {lastDate&&<span className="badge badge-amber">Last: {lastDate}</span>}
+              </div>
+            </div>
+            <button className="btn-primary">Start →</button>
+          </div>);
+        })}
+      </div>
+    </div>
+  );
+
+  if(done)return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+        <div><h2 className="section-title" style={{margin:0}}>Audit Report — {lib?.name}</h2><div style={{fontSize:12,color:"#666"}}>{TODAY}</div></div>
+        <div style={{display:"flex",gap:8}}><button onClick={exportAudit}>Export CSV</button><button onClick={reset}>← New Audit</button></div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:10,marginBottom:"1.5rem"}}>
+        <div className="stat-card"><div className="stat-num">{totalSc}</div><div className="stat-label">Scanned</div></div>
+        <div className="stat-card"><div className="stat-num">{totalEx}</div><div className="stat-label">Expected</div></div>
+        <div className="stat-card" style={missing.length>0?{background:"#F7C1C1"}:{}}><div className="stat-num" style={missing.length>0?{color:"#791F1F"}:{}}>{missing.reduce((s,d)=>s+d.delta,0)}</div><div className="stat-label" style={missing.length>0?{color:"#A32D2D"}:{}}>Missing</div></div>
+        <div className="stat-card" style={msrpLost>0?{background:"#F7C1C1"}:{}}><div className="stat-num" style={msrpLost>0?{color:"#791F1F"}:{}}>${msrpLost.toFixed(2)}</div><div className="stat-label" style={msrpLost>0?{color:"#A32D2D"}:{}}>MSRP Taken</div></div>
+      </div>
+      {missing.length>0&&<><div style={{fontSize:11,fontWeight:500,color:"#791F1F",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.4px"}}>Missing stock</div>
+        <div className="table-wrap" style={{marginBottom:"1.25rem"}}><table><thead><tr><th>Title</th><th>Expected</th><th>Scanned</th><th>Missing</th><th>MSRP Loss</th></tr></thead>
+        <tbody>{missing.map(d=><tr key={d.isbn}><td><div style={{fontWeight:500}}>{d.book?.title||d.isbn}</div><div style={{fontSize:11,color:"#666"}}>{d.book?.author}</div></td><td>{d.expected}</td><td>{d.scanned}</td><td><span style={{color:"#A32D2D",fontWeight:500}}>-{d.delta}</span></td><td style={{color:"#A32D2D"}}>${(d.book?d.book.msrp*d.delta:0).toFixed(2)}</td></tr>)}</tbody></table></div></>}
+      {unknown.length>0&&<><div style={{fontSize:11,fontWeight:500,color:"#854F0B",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.4px"}}>Unknown stock</div>
+        <div className="table-wrap" style={{marginBottom:"1.25rem"}}><table><thead><tr><th>ISBN</th><th>Title</th><th>Count</th></tr></thead>
+        <tbody>{unknown.map(d=><tr key={d.isbn}><td style={{fontFamily:"monospace",fontSize:11}}>{d.isbn}</td><td>{d.book?.title||<span style={{color:"#666"}}>Not in catalog</span>}</td><td>{d.scanned}</td></tr>)}</tbody></table></div></>}
+      {ok.length>0&&<><div style={{fontSize:11,fontWeight:500,color:"#27500A",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.4px"}}>Fully accounted</div>
+        <div className="table-wrap"><table><thead><tr><th>Title</th><th>Status</th></tr></thead>
+        <tbody>{ok.map(d=><tr key={d.isbn}><td>{d.book?.title||d.isbn}</td><td><span className="badge badge-green">{d.scanned}/{d.expected} ✓</span></td></tr>)}</tbody></table></div></>}
+    </div>
+  );
+
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+        <div><h2 className="section-title" style={{margin:0}}>Auditing: {lib?.name}</h2><div style={{fontSize:12,color:"#666"}}>{lib?.location}</div></div>
+        <button onClick={reset}>← Change</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(110px,1fr))",gap:10,marginBottom:"1.25rem"}}>
+        <div className="stat-card"><div className="stat-num">{totalSc}</div><div className="stat-label">Scanned</div></div>
+        <div className="stat-card"><div className="stat-num">{totalEx}</div><div className="stat-label">Expected</div></div>
+        <div className="stat-card"><div className="stat-num">{Object.keys(scanned).length}</div><div className="stat-label">Unique</div></div>
+        <div className="stat-card" style={missing.length>0?{background:"#F7C1C1"}:{}}><div className="stat-num" style={missing.length>0?{color:"#791F1F"}:{}}>{missing.length}</div><div className="stat-label" style={missing.length>0?{color:"#A32D2D"}:{}}>Short</div></div>
+      </div>
+      {lastScan&&<div className={`scan-toast${lastScan.inLib?" ok":" warn"}`}>{lastScan.inLib?`✓ ${lastScan.book?.title||lastScan.isbn} — ${scanned[lastScan.isbn]} scanned`:`⚠ Unknown: ${lastScan.isbn}`}</div>}
+      <div className="card" style={{marginBottom:"1.25rem"}}><ScanInput onScan={processISBN}/></div>
+      {delta.length>0&&<div className="table-wrap" style={{marginBottom:"1.25rem"}}>
+        <table><thead><tr><th>Title</th><th>Scanned</th><th>Expected</th><th>Status</th></tr></thead>
+        <tbody>{delta.map(d=>(
+          <tr key={d.isbn} style={d.status==="missing"?{background:"rgba(242,193,193,0.2)"}:d.status==="unknown"?{background:"rgba(250,199,117,0.15)"}:{}}>
+            <td><div style={{fontWeight:500}}>{d.book?.title||"Unknown"}</div><div style={{fontSize:11,color:"#666",fontFamily:"monospace"}}>{d.isbn}</div></td>
+            <td style={{fontWeight:500}}>{d.scanned}</td><td>{d.expected||"—"}</td>
+            <td>{d.status==="ok"&&<span className="badge badge-green">✓</span>}{d.status==="missing"&&<span className="badge badge-red">-{d.delta} missing</span>}{d.status==="over"&&<span className="badge badge-blue">+{Math.abs(d.delta)} extra</span>}{d.status==="unknown"&&<span className="badge badge-amber">Unknown</span>}</td>
+          </tr>
+        ))}</tbody></table>
+      </div>}
+      {delta.length===0&&<div className="empty-state" style={{padding:"1.5rem"}}><p style={{fontSize:13}}>Scan first book to begin.</p></div>}
+      <div style={{display:"flex",justifyContent:"flex-end",gap:8}}>
+        <button onClick={reset}>Discard</button>
+        <button className="btn-success" onClick={finish} disabled={Object.keys(scanned).length===0||saving}>{saving?"Saving...":"Finish & Generate Report →"}</button>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// DELIVERIES
+// ══════════════════════════════════════════════
+function DeliveriesTab({libraries,deliveries,setDeliveries,collections,setCollections,books,flash}){
+  const [showAdd,setShowAdd]=useState(false);const [form,setForm]=useState({libraryId:"",date:TODAY,notes:""});
+  const [items,setItems]=useState([]);const [bSearch,setBSearch]=useState("");const [filterLib,setFilterLib]=useState("");const [saving,setSaving]=useState(false);
+
+  function addItem(isbn){
+    const clean=isbn.replace(/\D/g,"");if(!clean)return;
+    const ex=items.find(i=>i.isbn===clean);
+    if(ex)setItems(it=>it.map(i=>i.isbn===clean?{...i,qty:i.qty+1}:i));
+    else{const bk=books.find(b=>b.isbn===clean);setItems(it=>[...it,{isbn:clean,title:bk?.title||"Unknown",qty:1}]);}
+    setBSearch("");
+  }
+  async function saveDelivery(){
+    if(!form.libraryId||items.length===0)return;setSaving(true);
+    const id="del"+Date.now();const delivery={id,libraryId:form.libraryId,date:form.date,notes:form.notes,items:[...items]};
+    await db.insertDelivery(delivery);setDeliveries(d=>[delivery,...d]);
+    for(const item of items){
+      const ex=collections.find(c=>c.libraryId===form.libraryId&&c.isbn===item.isbn);
+      const col={libraryId:form.libraryId,isbn:item.isbn,qty:ex?ex.qty+item.qty:item.qty,condition:"Good",lastInventory:null};
+      await db.upsertCollection(col);
+      if(ex)setCollections(c=>c.map(x=>x.libraryId===form.libraryId&&x.isbn===item.isbn?{...x,qty:col.qty}:x));
+      else setCollections(c=>[...c,col]);
+    }
+    setForm({libraryId:"",date:TODAY,notes:""});setItems([]);setShowAdd(false);setSaving(false);flash("Delivery logged");
+  }
+  async function delDelivery(id){if(!confirm("Delete this delivery log?"))return;await db.deleteDelivery(id);setDeliveries(d=>d.filter(x=>x.id!==id));flash("Delivery removed");}
+  function exportDeliveries(){
+    const rows=filtered.flatMap(d=>{const lib=libraries.find(l=>l.id===d.libraryId);return d.items.map(i=>{const bk=books.find(b=>b.isbn===i.isbn);return{Date:d.date,Library:lib?.name||d.libraryId,ISBN:i.isbn,Title:bk?.title||"Unknown",Qty:i.qty,Notes:d.notes};});});
+    if(rows.length)exportCSV(rows,"deliveries_export.csv");
+  }
+  const filtered=[...deliveries].filter(d=>!filterLib||d.libraryId===filterLib).sort((a,b)=>b.date.localeCompare(a.date));
+  const filtBks=books.filter(b=>(b.title+b.isbn).toLowerCase().includes(bSearch.toLowerCase()));
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem",gap:10}}>
+        <h2 className="section-title" style={{margin:0}}>Delivery Log</h2>
+        <div style={{display:"flex",gap:8}}><button onClick={exportDeliveries}>Export CSV</button><button className="btn-primary" onClick={()=>setShowAdd(true)}>+ Log Delivery</button></div>
+      </div>
+      <select value={filterLib} onChange={e=>setFilterLib(e.target.value)} style={{maxWidth:220,marginBottom:"1rem"}}>
+        <option value="">All Libraries</option>{libraries.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
+      </select>
+      {filtered.length===0&&<div className="empty-state"><p>No deliveries logged yet.</p></div>}
+      <div style={{display:"grid",gap:10}}>
+        {filtered.map(d=>{
+          const lib=libraries.find(l=>l.id===d.libraryId);const total=d.items.reduce((s,i)=>s+i.qty,0);
+          const msrp=d.items.reduce((s,i)=>{const bk=books.find(b=>b.isbn===i.isbn);return s+(bk?bk.msrp*i.qty:0);},0);
+          return(<div key={d.id} className="card">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <div>
+                <div style={{fontWeight:500,fontSize:14}}>{lib?.name||"Unknown"}</div>
+                <div style={{fontSize:12,color:"#666"}}>{d.date}{d.notes&&<> · {d.notes}</>}</div>
+                <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
+                  <span className="badge badge-blue">{d.items.length} titles</span>
+                  <span className="badge badge-gray">{total} copies</span>
+                  <span className="badge badge-green">MSRP ${msrp.toFixed(2)}</span>
+                </div>
+              </div>
+              <button className="btn-danger" style={{padding:"4px 8px",fontSize:11}} onClick={()=>delDelivery(d.id)}>✕</button>
+            </div>
+            <div style={{marginTop:"0.75rem",display:"flex",flexWrap:"wrap",gap:6}}>
+              {d.items.map(i=>{const bk=books.find(b=>b.isbn===i.isbn);return<span key={i.isbn} style={{fontSize:12,background:"#f5f4f0",padding:"2px 8px",borderRadius:6}}>{bk?.title||i.isbn} ×{i.qty}</span>;})}
+            </div>
+          </div>);
+        })}
+      </div>
+      {showAdd&&(<div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setShowAdd(false)}}>
+        <div className="modal" style={{maxWidth:560}}>
+          <div className="modal-title">Log New Delivery</div>
+          <div className="form-row">
+            <div className="form-group"><label className="form-label">Library *</label>
+              <select value={form.libraryId} onChange={e=>setForm(f=>({...f,libraryId:e.target.value}))}><option value="">— select —</option>{libraries.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>
+            </div>
+            <div className="form-group"><label className="form-label">Date</label><input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))}/></div>
+          </div>
+          <div className="form-group"><label className="form-label">Notes</label><input value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="e.g. Holiday refresh, post-audit restock..."/></div>
+          <div className="form-group">
+            <label className="form-label">Add Books</label>
+            <ScanInput onScan={addItem} autoFocus={false}/>
+            <input value={bSearch} onChange={e=>setBSearch(e.target.value)} placeholder="Or search to add..." style={{marginTop:8}}/>
+            {bSearch&&<div style={{background:"#fff",border:"0.5px solid rgba(0,0,0,0.3)",borderRadius:8,marginTop:4,maxHeight:130,overflowY:"auto"}}>
+              {filtBks.length===0&&<div style={{padding:"8px 12px",fontSize:13,color:"#666"}}>No matches</div>}
+              {filtBks.map(b=><div key={b.isbn} style={{padding:"8px 12px",cursor:"pointer",fontSize:13,borderBottom:"0.5px solid rgba(0,0,0,0.08)"}} onClick={()=>addItem(b.isbn)}><span style={{fontWeight:500}}>{b.title}</span> <span style={{color:"#666"}}>{b.author}</span></div>)}
+            </div>}
+          </div>
+          {items.length>0&&<div style={{marginBottom:"1rem"}}>
+            {items.map(i=>(<div key={i.isbn} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:"0.5px solid rgba(0,0,0,0.08)"}}>
+              <span style={{flex:1,fontSize:13,fontWeight:500}}>{i.title}</span>
+              <input type="number" min="1" value={i.qty} onChange={e=>{const n=parseInt(e.target.value);if(!isNaN(n)&&n>0)setItems(it=>it.map(x=>x.isbn===i.isbn?{...x,qty:n}:x));}} style={{width:56,padding:"3px 6px",fontSize:12}}/>
+              <button className="btn-danger" style={{padding:"3px 8px",fontSize:11}} onClick={()=>setItems(it=>it.filter(x=>x.isbn!==i.isbn))}>✕</button>
+            </div>))}
+            <div style={{marginTop:8,fontSize:12,color:"#666"}}>{items.reduce((s,i)=>s+i.qty,0)} copies · MSRP ${items.reduce((s,i)=>{const bk=books.find(b=>b.isbn===i.isbn);return s+(bk?bk.msrp*i.qty:0);},0).toFixed(2)}</div>
+          </div>}
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAdd(false)}>Cancel</button>
+            <button className="btn-success" onClick={saveDelivery} disabled={!form.libraryId||items.length===0||saving}>{saving?"Saving...":"Save Delivery"}</button>
+          </div>
+        </div>
+      </div>)}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// BILLING
+// ══════════════════════════════════════════════
+function BillingTab({libraries,audits,books}){
+  const [filterLib,setFilterLib]=useState("");
+  const billingData=libraries.map(lib=>{
+    const libAudits=audits.filter(a=>a.libraryId===lib.id).sort((a,b)=>b.date.localeCompare(a.date));
+    const byISBN={};
+    libAudits.flatMap(a=>a.delta).forEach(({isbn,missing})=>{byISBN[isbn]=(byISBN[isbn]||0)+missing;});
+    const lineItems=Object.entries(byISBN).map(([isbn,qty])=>{const bk=books.find(b=>b.isbn===isbn);return{isbn,title:bk?.title||isbn,msrp:bk?.msrp||0,qty,total:(bk?.msrp||0)*qty};});
+    return{lib,libAudits,lineItems,totalBilled:lineItems.reduce((s,l)=>s+l.total,0),lastAudit:libAudits[0]};
+  }).filter(x=>!filterLib||x.lib.id===filterLib);
+  function exportBilling(){
+    const rows=billingData.flatMap(({lib,lineItems})=>lineItems.map(l=>({Library:lib.name,Location:lib.location,ISBN:l.isbn,Title:l.title,Qty:l.qty,MSRP:l.msrp.toFixed(2),LineTotal:l.total.toFixed(2)})));
+    if(rows.length)exportCSV(rows,"billing_summary.csv");
+  }
+  const grandTotal=billingData.reduce((s,x)=>s+x.totalBilled,0);
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem",gap:10}}>
+        <div><h2 className="section-title" style={{margin:0}}>Client Billing Summary</h2><div style={{fontSize:12,color:"#666",marginTop:2}}>MSRP of books taken per location across all audits</div></div>
+        <button onClick={exportBilling}>Export CSV</button>
+      </div>
+      <div style={{display:"flex",gap:10,marginBottom:"1rem",alignItems:"center"}}>
+        <select value={filterLib} onChange={e=>setFilterLib(e.target.value)} style={{maxWidth:220}}><option value="">All Libraries</option>{libraries.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>
+        <div style={{fontSize:13,fontWeight:500,marginLeft:"auto"}}>Grand Total: <span style={{color:"#185FA5"}}>${grandTotal.toFixed(2)}</span></div>
+      </div>
+      {billingData.length===0&&<div className="empty-state"><p>No billing data yet. Complete an audit first.</p></div>}
+      {billingData.map(({lib,lineItems,totalBilled,lastAudit,libAudits})=>(
+        <div key={lib.id} className="card" style={{marginBottom:"1rem"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.75rem"}}>
+            <div>
+              <div style={{fontWeight:500,fontSize:15}}>{lib.name}</div>
+              <div style={{fontSize:12,color:"#666"}}>{lib.location}{lib.contact&&<> · {lib.contact}</>}</div>
+              <div style={{fontSize:11,color:"#666",marginTop:2}}>{libAudits.length} audit(s){lastAudit&&<> · Last: {lastAudit.date}</>}</div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontSize:20,fontWeight:500,color:totalBilled>0?"#A32D2D":"#27500A"}}>${totalBilled.toFixed(2)}</div>
+              <div style={{fontSize:11,color:"#666"}}>billable</div>
+            </div>
+          </div>
+          {lineItems.length===0?<div style={{fontSize:13,color:"#666"}}>No missing books — nothing to bill.</div>:(
+            <div className="table-wrap"><table><thead><tr><th>Title</th><th>ISBN</th><th>MSRP</th><th>Qty Taken</th><th>Line Total</th></tr></thead>
+            <tbody>{lineItems.map(l=>(<tr key={l.isbn}><td style={{fontWeight:500}}>{l.title}</td><td style={{fontFamily:"monospace",fontSize:11}}>{l.isbn}</td><td>${l.msrp.toFixed(2)}</td><td>{l.qty}</td><td style={{fontWeight:500,color:"#A32D2D"}}>${l.total.toFixed(2)}</td></tr>))}</tbody></table></div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// RESTOCK
+// ══════════════════════════════════════════════
+function RestockTab({libraries,audits,books,collections,queue,setQueue,flash}){
+  const [filterLib,setFilterLib]=useState("");const THRESHOLD=2;
+  const restockItems=libraries.flatMap(lib=>{
+    const libCols=collections.filter(c=>c.libraryId===lib.id);
+    const lastAudit=audits.filter(a=>a.libraryId===lib.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    return libCols.filter(c=>{
+      const missing=lastAudit?lastAudit.delta.find(d=>d.isbn===c.isbn)?.missing||0:0;
+      return c.qty<=THRESHOLD||missing>0||c.condition==="Poor";
+    }).map(c=>{
+      const bk=books.find(b=>b.isbn===c.isbn);
+      const missing=lastAudit?lastAudit.delta.find(d=>d.isbn===c.isbn)?.missing||0:0;
+      const reasons=[];
+      if(c.qty<=THRESHOLD)reasons.push(`Low stock (${c.qty} left)`);
+      if(missing>0)reasons.push(`${missing} taken last audit`);
+      if(c.condition==="Poor")reasons.push("Poor condition");
+      return{lib,col:c,book:bk,missing,reasons,suggestedQty:Math.max(missing,(THRESHOLD+1)-c.qty,1)};
+    });
+  }).filter(x=>!filterLib||x.lib.id===filterLib);
+
+  async function addToQueue(item){
+    if(!item.book||queue.find(q=>q.isbn===item.book.isbn))return;
+    const qItem={isbn:item.book.isbn,queueDate:TODAY,notes:`Restock for ${item.lib.name} — ${item.reasons.join(", ")}`};
+    await db.upsertQueue(qItem);setQueue(q=>[...q,qItem]);flash("Added to queue");
+  }
+  async function addAllToQueue(){
+    for(const item of restockItems.filter(i=>i.book&&!queue.find(q=>q.isbn===i.book?.isbn)))await addToQueue(item);
+  }
+  function exportRestock(){exportCSV(restockItems.map(i=>({Library:i.lib.name,Title:i.book?.title||i.col.isbn,ISBN:i.col.isbn,CurrentQty:i.col.qty,Missing:i.missing,Condition:i.col.condition,Reasons:i.reasons.join("; "),SuggestedReorder:i.suggestedQty,MSRP:i.book?.msrp||""})),"restock_list.csv");}
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem",gap:10}}>
+        <div><h2 className="section-title" style={{margin:0}}>Restock List</h2><div style={{fontSize:12,color:"#666",marginTop:2}}>Low stock, recent losses, and poor condition flags</div></div>
+        <div style={{display:"flex",gap:8}}><button onClick={exportRestock}>Export CSV</button><button className="btn-amber" onClick={addAllToQueue} disabled={restockItems.length===0}>Add All to Queue</button></div>
+      </div>
+      <select value={filterLib} onChange={e=>setFilterLib(e.target.value)} style={{maxWidth:220,marginBottom:"1rem"}}><option value="">All Libraries</option>{libraries.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>
+      {restockItems.length===0&&<div className="empty-state"><p>No restock items flagged. All libraries are well-stocked.</p></div>}
+      <div className="table-wrap">
+        <table><thead><tr><th>Title</th><th>Library</th><th>On Hand</th><th>Condition</th><th>Reasons</th><th>Qty</th><th></th></tr></thead>
+        <tbody>{restockItems.map((item,i)=>(
+          <tr key={i}>
+            <td><div style={{fontWeight:500}}>{item.book?.title||item.col.isbn}</div><div style={{fontSize:11,color:"#666"}}>{item.book?.author}</div></td>
+            <td style={{fontSize:12}}>{item.lib.name}</td>
+            <td><span style={{fontWeight:500,color:item.col.qty===0?"#A32D2D":item.col.qty<=1?"#854F0B":""}}>{item.col.qty}</span></td>
+            <td><CondBadge c={item.col.condition}/></td>
+            <td>{item.reasons.map((r,ri)=><div key={ri} style={{fontSize:11,color:"#666"}}>{r}</div>)}</td>
+            <td style={{fontWeight:500}}>{item.suggestedQty}</td>
+            <td><button style={{padding:"4px 10px",fontSize:11,whiteSpace:"nowrap"}} onClick={()=>addToQueue(item)} disabled={!item.book||!!queue.find(q=>q.isbn===item.book?.isbn)}>{queue.find(q=>q.isbn===item.book?.isbn)?"In queue":"+ Queue"}</button></td>
+          </tr>
+        ))}</tbody></table>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════
+// QUEUE
+// ══════════════════════════════════════════════
+function QueueTab({queue,setQueue,libraries,collections,setCollections,books,flash}){
+  const [showAssign,setShowAssign]=useState(null);const [assignLib,setAssignLib]=useState("");const [assignQty,setAssignQty]=useState(1);const [saving,setSaving]=useState(false);
+  async function rem(isbn){await db.deleteQueue(isbn);setQueue(q=>q.filter(x=>x.isbn!==isbn));flash("Removed from queue");}
+  async function updNotes(isbn,notes){
+    const item=queue.find(q=>q.isbn===isbn);if(!item)return;
+    await db.upsertQueue({...item,notes});setQueue(q=>q.map(x=>x.isbn===isbn?{...x,notes}:x));
+  }
+  async function assign(){
+    if(!assignLib||!showAssign)return;setSaving(true);
+    const ex=collections.find(c=>c.libraryId===assignLib&&c.isbn===showAssign.isbn);
+    const col={libraryId:assignLib,isbn:showAssign.isbn,qty:ex?ex.qty+Number(assignQty):Number(assignQty),condition:"Good",lastInventory:null};
+    await db.upsertCollection(col);
+    if(ex)setCollections(c=>c.map(x=>x.libraryId===assignLib&&x.isbn===showAssign.isbn?{...x,qty:col.qty}:x));
+    else setCollections(c=>[...c,col]);
+    await rem(showAssign.isbn);setShowAssign(null);setAssignLib("");setAssignQty(1);setSaving(false);flash("Assigned to library");
+  }
+  return(
+    <div>
+      <div style={{marginBottom:"1rem"}}>
+        <h2 className="section-title" style={{margin:0}}>Staging Queue</h2>
+        <div style={{fontSize:12,color:"#666",marginTop:2}}>Books sourced or flagged — not yet assigned to a library.</div>
+      </div>
+      {queue.length===0&&<div className="empty-state"><p>Queue is empty. Add books from Catalog or Restock tabs.</p></div>}
+      <div style={{display:"grid",gap:10}}>
+        {queue.map(item=>{const bk=books.find(b=>b.isbn===item.isbn)||item;return(
+          <div key={item.isbn} className="card">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:500}}>{bk.title}</div>
+                <div style={{fontSize:12,color:"#666"}}>{bk.author} · {bk.format} · ${bk.msrp?.toFixed(2)}</div>
+                <div style={{fontSize:11,fontFamily:"monospace",color:"#666",marginTop:2}}>{bk.isbn}</div>
+                {item.queueDate&&<div style={{fontSize:11,color:"#666",marginTop:2}}>Added {item.queueDate}</div>}
+                <input value={item.notes||""} onChange={e=>updNotes(item.isbn,e.target.value)} placeholder="Notes..." style={{marginTop:8,fontSize:12,padding:"4px 8px"}}/>
+              </div>
+              <div style={{display:"flex",gap:6,marginLeft:12,flexShrink:0}}>
+                <button className="btn-primary" style={{fontSize:12,padding:"5px 10px"}} onClick={()=>{setShowAssign(item);setAssignLib("");setAssignQty(1);}}>Assign →</button>
+                <button className="btn-danger" style={{padding:"5px 8px",fontSize:12}} onClick={()=>rem(item.isbn)}>✕</button>
+              </div>
+            </div>
+          </div>
+        );})}
+      </div>
+      {showAssign&&(<div className="modal-overlay" onClick={e=>{if(e.target===e.currentTarget)setShowAssign(null)}}>
+        <div className="modal">
+          <div className="modal-title">Assign to Library</div>
+          <div style={{marginBottom:"1rem",fontSize:14,fontWeight:500}}>{books.find(b=>b.isbn===showAssign.isbn)?.title||showAssign.title}</div>
+          <div className="form-group"><label className="form-label">Library</label>
+            <select value={assignLib} onChange={e=>setAssignLib(e.target.value)}><option value="">— select —</option>{libraries.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>
+          </div>
+          <div className="form-group"><label className="form-label">Quantity</label><input type="number" min="1" value={assignQty} onChange={e=>setAssignQty(e.target.value)} style={{width:80}}/></div>
+          <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowAssign(null)}>Cancel</button>
+            <button className="btn-success" onClick={assign} disabled={!assignLib||saving}>{saving?"Saving...":"Assign & Remove from Queue"}</button>
+          </div>
+        </div>
+      </div>)}
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>,document.getElementById("root"));
+</script>
+</body>
+</html>
